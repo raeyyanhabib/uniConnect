@@ -1,0 +1,64 @@
+ use tokens efficiently 
+create new profiles, by names of
+ Abdulrehman Ahmad (24L-0555), Muaz Afzal Khan (24L-0740), Hassan Rizwan (24L-0891), Hassaan Faisal (24L-0884)
+ now, the university format for the email is l240690@lhr.nu.edu.pk
+where l240690 is the roll number as 24L-0690 then lhr is for Lahore, nu is for national university,
+edu and pk is understood. make the university mail contraint according to that and the new profiles like the same format.
+
+add acceptance in the mail for Islamabad (24i ...), faisalabad (24f ...), karachi (24k ...) and peshawar (24p ...)
+and the year also determines the semester you're in like 24 would tell you this is 4th as 
+the semester starts in fall. 
+
+same for email, like isb for islamabad, lhr for lahore, fsd for faisalabad, khi for karachi and pwr for peshawar.
+
+keep the default passwords for now as 12345678.
+
+add a change password option in privacy and security tab. 
+
+make all the five profiles. mine is Raeyyan Habib l240690@lhr.nu.edu.pk as already request accepted friends.
+
+for admin there is no contraint in the mail make raeyyanhabib12@gmailcom an admin and password be 0690368Raeyyan@
+
+for the notif bubbles in the dashboard for the unread mesages make them alive, like when a notif is read they go away or decrement.
+
+make the member count of grooups as dynamic not rigid as 4,6,8 .. just whatever someone prefers and make it all editable after.
+
+people require and admins approval to Join groups.
+---------------------------------------------------------------------
+
+Currently, the design is a plain dark blue with heavy, rigid outlining, which makes it look too robotic, dated, and harsh. I want to refactor the styling (CSS/Tailwind) to achieve a 'Modern, Elevated Academic Hub' aesthetic. It should remain a minimal dark theme, but it needs to feel premium, accessible, and highly interactive. Please rewrite the styling based on the following design system:
+
+1. The Color Palette (Premium Dark Mode)
+
+Base Background: Shift from plain flat blue to a sophisticated, deep slate/charcoal (e.g., #0F172A or #111827).
+
+Surface/Card Backgrounds: Use slightly lighter, elevated tones (e.g., #1E293B) for resource cards, chat windows, and booking modules.
+
+Primary Accent: Use a modern, energetic 'Academic Blue' or 'Soft Indigo' (e.g., #3B82F6 or #6366F1) for primary actions like 'Post Item', 'Send Message', or 'Book Court'.
+
+Text: Never use pure white. Use crisp off-whites (#F8FAFC) for headings to reduce eye strain, and soft grays (#94A3B8) for descriptions and timestamps.
+
+2. Borders & Outlines (Remove the 'Robotic' Feel)
+
+Remove harsh, solid 1px/2px bright borders. * Replace them with 'soft glass borders' using very low-opacity whites (e.g., border: 1px solid rgba(255, 255, 255, 0.08)). This separates elements without drawing rigid boxes.
+
+Add a smooth border-radius (e.g., 12px or 16px) to all cards, modals, and input fields to make the interface feel friendly and modern.
+
+3. Depth & Interactivity (The 'App' Feel)
+
+Because students will be browsing listings and clicking items, the UI needs depth.
+
+Resting State: Give cards a subtle, wide, dark drop-shadow so they visually separate from the background.
+
+Hover State: When a student hovers over a resource card or a user profile, it should smoothly lift upwards (e.g., transform: translateY(-4px)) with an expanding soft shadow. Add transition: all 0.3s ease for a buttery-smooth feel.
+
+4. Typography & Spacing
+
+This app is heavily text-based (descriptions, chats, rules). Use a highly readable, modern Sans-Serif font like Inter or Roboto.
+
+Increase the inner padding (whitespace) inside cards and form inputs. Let the elements breathe so it doesn't look cluttered.
+
+AN IMP THING I NEED YOU TO DO IS ALWAYS KEEP TABS ABOUT THE PREVIOUS CODE, LIKE IF SOMETHING GETS FUCKED UP WE COULD ALWAYS GO TO THE LAST VERSION
+THIS COULD BE DONE BY YOU MAKING A COPY OF THE CURRENT CODE IN SOME TXT FILE NAMED LIKE THE DATE PLUS TIMESTAMP OF THE INTERATION AND THEN MAKE THE CHANGES 
+IN THE CURRENT FILE. THE MAIN ONE 
+

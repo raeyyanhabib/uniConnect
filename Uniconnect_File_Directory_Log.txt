@@ -1,0 +1,46 @@
+# Uniconnect File & Directory Log
+
+Below is a breakdown of the files in this project. The first section covers standard files required by almost every React (Vite) application. The second section covers the custom files that actually make up the Uniconnect platform.
+
+---
+
+## 1. Standard React & Vite Ecosystem Files
+These files are boilerplate for modern React applications. They configure the build tools, TypeScript, styling engines, and package managers.
+
+- `package.json` & `package-lock.json`: The manifest files that keep track of all the external libraries (dependencies) installed via npm, as well as project scripts (like `npm run dev`).
+- `node_modules/`: The folder where all the downloaded external libraries are actually stored. (Never manually edited).
+- `index.html`: The main entry point of the application. It loads the React scripts and mounts the app to the browser screen.
+- `vite.config.ts`: Configuration file for Vite, the fast build tool used to compile and serve the React code.
+- `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json`: Configuration files for TypeScript, ensuring the code is typed properly and adheres to specific rules.
+- `eslint.config.js`: Configuration for ESLint, a tool that analyzes the code to quickly find and fix syntax or style problems.
+- `postcss.config.js` & `tailwind.config.js`: Configuration files for PostCSS and Tailwind. Even though Uniconnect relies heavily on custom vanilla CSS, these standard configs exist to support modern styling utilities if needed.
+- `src/main.tsx`: The standard React bootstrap file. It takes the main `App` component and injects it into the `index.html`.
+
+---
+
+## 2. Uniconnect Specific Files
+These are the custom files built specifically for the Uniconnect platform's frontend and backend infrastructure.
+
+### Frontend Logic & UI (`src/`)
+- `src/App.tsx`: The core of Uniconnect's frontend. This massive file contains the routing logic (React Router), the main layout, and all individual page components divided into 10 distinct sections covering Use Cases 1-34.
+- `src/api.ts`: A custom fetch wrapper that automatically attaches the user's secure JSON Web Token (JWT) to any outgoing API requests to the backend server.
+- `src/index.css`: Contains the fundamental CSS design system (color variables, shadows, sizing) and global typography/reset rules.
+- `src/App.css`: Contains specific layout classes and custom keyframe animations used throughout Uniconnect's UI.
+- `src/components/`, `src/pages/`, `src/hooks/`, `src/assets/`: Directories designed for future scaling. Currently, the bulk of logic is centralized in `App.tsx` for rapid prototyping, but these folders exist as the standard locations to split massive files into smaller reusable chunks later.
+
+### Backend API & Database (`server/`)
+- `server/package.json` & `server/package-lock.json`: Manages dependencies specifically for the backend Node.js server (e.g., Express, SQLite3, JsonWebToken).
+- `server/index.js`: The entry point for the Express.js server. It sets up the port, CORS rules, core API routes, and starts listening for frontend requests.
+- `server/db.js`: Initializes the SQLite database and creates the core Uniconnect tables: Users, PartnerRequests, StudyGroups, GroupMembers, Resources, BorrowRequests, Transactions, Conversations, Messages, and Notifications.
+- `server/uniconnect.db`: The actual local database file storing all user and platform data. 
+- `server/seed.js`: A utility script used to populate the database with dummy data for testing purposes.
+- `server/routes/`: Contains individual API endpoint configurations dealing with authentication, resources, user profiles, etc.
+- `server/middleware/`: Contains backend logic executed before a request hits a route, most notably verifying if the user's JWT token is valid before letting them see protected data.
+
+---
+
+### Project Documentation
+- `README.md`: General markdown documentation about the repository.
+- `mission_fullstack.md`: The original architecture and goals document outlining the 34 Use Cases and the full-stack database schema.
+- `walkthrough-uniconnectUI` & `walkthrough-2.32`: Detailed changelogs outlining code refactoring, JSDoc annotations, and how the massive UI files were structured for readability.
+- `Uniconnect_Context_For_AI.txt`: A quick-start primer specifically meant to give AI tools instant context about the Uniconnect infrastructure.

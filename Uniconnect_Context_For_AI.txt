@@ -1,0 +1,52 @@
+# Uniconnect Project Context
+
+This document is intended to be uploaded to an AI assistant to provide immediate context on the "Uniconnect" project.
+
+## High-Level Overview
+Uniconnect is a university-focused social and utility platform built for students. It allows core functionalities like:
+1. Finding study partners and forming study groups.
+2. Sharing, borrowing, and lending resources (books, equipment, notes).
+3. Communicating via direct messages and notifications.
+4. Reporting and browsing lost and found items.
+5. Administrative moderation.
+
+There are 34 distinct "Use Cases" (referred to as UC 1 to UC 34) that define the entire functionality of the platform.
+
+## Tech Stack
+- **Frontend**: React + TypeScript, bundled with Vite.
+- **Styling**: Vanilla CSS (`index.css` and `App.css`) with global styles and animations. It uses a custom design system with CSS variables (no Tailwind or component libraries are actively used in the main code, despite standard config files existing).
+- **Backend (API)**: Node.js with Express.js.
+- **Database**: SQLite (managed natively via `better-sqlite3`).
+- **Authentication**: JWT (JSON Web Tokens) utilizing `localStorage` on the frontend for persistence.
+- **API Client**: A custom fetch wrapper (`src/api.ts`) automatically attaches the JWT token to all requests.
+
+## Architecture & Structure
+The project is built as a unified repository with distinct frontend and backend folders.
+
+### 1. Frontend (`src/`)
+The frontend is highly centralized to support rapid prototyping:
+- `src/App.tsx`: This is the core file. It is massive (over 130KB) and contains the routing, layouts, and almost all page/view components. It is meticulously divided into 10 distinct sections using comments (e.g., `/* ═══ SECTION N — ... ═══ */`). Every component has JSDoc comments mapping it to specific Use Cases.
+- `src/api.ts`: Helper functions to communicate with the backend (`api.get`, `api.post`, etc.).
+- `src/App.css` & `src/index.css`: Provide the design tokens, fonts, and animation keyframes.
+
+### 2. Backend (`server/`)
+- `server/index.js`: The Express server initialization and middleware setup.
+- `server/db.js`: Contains the SQLite database connection and the complete table schema definitions (Users, Resources, StudyGroups, Messages, etc.).
+- `server/seed.js`: A script to populate the SQLite database with initial dummy data.
+- `server/routes/`: Route handlers for auth, users, resources, etc.
+- `server/middleware/`: Contains middleware like JWT verification.
+
+## The Database Schema (SQLite)
+The data layer revolves around these main tables:
+- `Users`: Stores student information, statistics (rating), privacy preferences, and password hashes.
+- `StudyGroups` & `GroupMembers`: For group aggregation.
+- `PartnerRequests`: For 1-on-1 study buddy matching.
+- `Resources`, `BorrowRequests`, & `Transactions`: Powers the peer-to-peer equipment and book lending system.
+- `Conversations` & `Messages`: For the chat system.
+- `Notifications`, `LostFound`, and `Reports`.
+
+## Important Notes for AI Assistants
+- If the user asks you to modify a React component or a page, you will almost certainly find it inside `src/App.tsx`. 
+- You should search `src/App.tsx` for the heavily commented Section headers to locate the right code (e.g., "SECTION 4 — Authentication Pages" or "SECTION 7 — Study Partners & Groups").
+- The database is currently running on SQLite for simplicity (`server/uniconnect.db`), NOT PostgreSQL, so ensure any raw queries or schema modifications use SQLite syntax.
+- All secure API calls should go through the wrapper exported from `src/api.ts`.

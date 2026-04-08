@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Uniconnect — Full Stack Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #0b0e14;
+  --bg2:      #111520;
+  --bg3:      #161b27;
+  --border:   #1f2737;
+  --border2:  #2a3447;
+  --text:     #c8d3e8;
+  --muted:    #5a6a85;
+  --dim:      #3a4a65;
+  --accent:   #4f9eff;
+  --accent2:  #7c5cfc;
+  --green:    #2dd4a0;
+  --amber:    #f5a623;
+  --red:      #f0566a;
+  --pink:     #e879b0;
+  --mono:     'JetBrains Mono', monospace;
+  --display:  'Syne', sans-serif;
+  --body:     'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 2rem;
+  flex-shrink: 0;
+}
+.sidebar-logo {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: .75rem;
+}
+.sidebar-logo span {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.02em;
+}
+.sidebar-logo span em {
+  color: var(--accent);
+  font-style: normal;
+}
+.sidebar-logo p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.nav-group { margin-bottom: .5rem; }
+.nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: .5rem 1.25rem .25rem;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: .45rem 1.25rem;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: all .15s;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+.nav-item:hover { color: var(--text); background: var(--bg3); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(79,158,255,.06); }
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── MAIN ── */
+#main {
+  flex: 1;
+  max-width: 900px;
+  padding: 3rem 3rem 6rem;
+  overflow-x: hidden;
+}
+
+/* ── SECTIONS ── */
+.section { margin-bottom: 5rem; }
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(79,158,255,.1);
+  border: 1px solid rgba(79,158,255,.2);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+.section-title {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.03em;
+  line-height: 1.2;
+}
+.section-sub { font-size: 14px; color: var(--muted); margin-top: .4rem; }
+
+/* ── HERO ── */
+#hero {
+  padding: 0 0 4rem;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--border);
+}
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(2.4rem, 5vw, 3.5rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.hero-title span { color: var(--accent); }
+.hero-desc { font-size: 16px; color: var(--muted); max-width: 580px; line-height: 1.7; margin-bottom: 2rem; }
+.hero-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: .75rem;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-title {
+  font-weight: 500;
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: .35rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.card-body { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+/* ── BADGES ── */
+.badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+.badge-blue  { background: rgba(79,158,255,.12);  color: #6baaff; border: 1px solid rgba(79,158,255,.2); }
+.badge-green { background: rgba(45,212,160,.12);  color: #2dd4a0; border: 1px solid rgba(45,212,160,.2); }
+.badge-amber { background: rgba(245,166,35,.12);  color: #f5a623; border: 1px solid rgba(245,166,35,.2); }
+.badge-red   { background: rgba(240,86,106,.12);  color: #f0566a; border: 1px solid rgba(240,86,106,.2); }
+.badge-pink  { background: rgba(232,121,176,.12); color: #e879b0; border: 1px solid rgba(232,121,176,.2); }
+.badge-gray  { background: rgba(90,106,133,.15);  color: #8a9ab5; border: 1px solid rgba(90,106,133,.2); }
+.badge-purple{ background: rgba(124,92,252,.12);  color: #a68cff; border: 1px solid rgba(124,92,252,.2); }
+
+/* ── CODE / FILE CHIPS ── */
+code, .chip {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg3);
+  color: #7db9f5;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.chip-warn { color: var(--amber); }
+.chip-green { color: var(--green); }
+
+/* ── LEARN LINKS ── */
+.learn-box {
+  background: rgba(79,158,255,.04);
+  border: 1px solid rgba(79,158,255,.15);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+.learn-box-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: .6rem;
+}
+.learn-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.learn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  padding: 4px 10px;
+  border-radius: 5px;
+  transition: all .15s;
+}
+.learn-link:hover { border-color: var(--accent); color: var(--accent); }
+.learn-link::before { content: '↗'; font-size: 10px; opacity: .6; }
+
+/* ── STACK LAYERS ── */
+.stack-layer {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.stack-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.stack-info { flex: 1; }
+.stack-name { font-weight: 500; color: #fff; font-size: 14px; margin-bottom: 2px; }
+.stack-desc { font-size: 12px; color: var(--muted); }
+.stack-arrow {
+  text-align: center;
+  color: var(--dim);
+  font-size: 11px;
+  padding: 4px 0;
+  font-family: var(--mono);
+}
+
+/* ── FILE TREE ── */
+.tree {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  line-height: 2;
+}
+.tree-line { display: flex; align-items: baseline; gap: 8px; }
+.tree-path { color: var(--text); }
+.tree-dir  { color: #fff; font-weight: 600; }
+.tree-key  { color: var(--accent); }
+.tree-note { font-size: 11px; color: var(--muted); font-family: var(--body); }
+.tree-warn { font-size: 11px; color: var(--amber); font-family: var(--body); }
+.tree-indent1 { padding-left: 1.2rem; }
+.tree-indent2 { padding-left: 2.4rem; }
+.tree-indent3 { padding-left: 3.6rem; }
+
+/* ── SECTION BLOCKS ── */
+.section-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all .18s;
+}
+.section-block:hover { border-color: var(--border2); background: var(--bg3); }
+.section-block-header {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.section-block-title { font-weight: 500; color: #fff; font-size: 13px; }
+.section-block-body { font-size: 12px; color: var(--muted); margin-top: .4rem; display: none; }
+.section-block.open .section-block-body { display: block; }
+.chevron { color: var(--dim); font-size: 11px; margin-left: auto; transition: transform .2s; }
+.section-block.open .chevron { transform: rotate(90deg); }
+
+/* ── DATABASE TABLE ── */
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: .75rem;
+}
+.db-table th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--bg3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.db-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  vertical-align: top;
+}
+.db-table tr:last-child td { border-bottom: none; }
+.db-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--text); }
+.db-table td:last-child { font-family: var(--mono); font-size: 11px; }
+.pk { color: var(--amber); font-size: 9px; vertical-align: super; margin-left: 2px; }
+.fk { color: var(--accent); font-size: 9px; vertical-align: super; margin-left: 2px; }
+
+/* ── FLOW ── */
+.flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: .6rem 0;
+}
+.flow-step {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+.flow-arr { color: var(--dim); font-size: 12px; }
+
+/* ── UC GRID ── */
+.uc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.uc-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  transition: all .18s;
+  cursor: pointer;
+  text-decoration: none;
+}
+.uc-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.uc-card-title { font-weight: 600; color: #fff; font-size: 13px; margin-bottom: .4rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.uc-card-list { font-size: 12px; color: var(--muted); line-height: 1.8; }
+
+/* ── RESOURCE LINKS SECTION ── */
+.resource-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.resource-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+.resource-card-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+  margin-bottom: .75rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── PIPELINE VISUAL ── */
+.pipeline {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: .75rem;
+}
+.pipeline-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp .4s ease both; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 820px) {
+  #sidebar { display: none; }
+  #main { padding: 2rem 1.5rem 5rem; max-width: 100%; }
+  .uc-grid, .resource-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <span>Uni<em>connect</em></span>
+    <p>Full-stack learning guide</p>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Start here</div>
+    <a class="nav-item active" href="#overview"><span class="nav-dot" style="background:#4f9eff"></span>Overview</a>
+    <a class="nav-item" href="#stack"><span class="nav-dot" style="background:#7c5cfc"></span>Tech stack</a>
+    <a class="nav-item" href="#files"><span class="nav-dot" style="background:#2dd4a0"></span>File tree</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Frontend</div>
+    <a class="nav-item" href="#apitx"><span class="nav-dot" style="background:#4f9eff"></span>api.ts wrapper</a>
+    <a class="nav-item" href="#apptsx"><span class="nav-dot" style="background:#4f9eff"></span>App.tsx sections</a>
+    <a class="nav-item" href="#styling"><span class="nav-dot" style="background:#4f9eff"></span>Styling system</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Backend</div>
+    <a class="nav-item" href="#express"><span class="nav-dot" style="background:#2dd4a0"></span>Express server</a>
+    <a class="nav-item" href="#routes"><span class="nav-dot" style="background:#2dd4a0"></span>Routes</a>
+    <a class="nav-item" href="#middleware"><span class="nav-dot" style="background:#2dd4a0"></span>JWT middleware</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Database</div>
+    <a class="nav-item" href="#schema"><span class="nav-dot" style="background:#f5a623"></span>Schema tables</a>
+    <a class="nav-item" href="#pipeline"><span class="nav-dot" style="background:#f5a623"></span>Data pipelines</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Use cases</div>
+    <a class="nav-item" href="#usecases"><span class="nav-dot" style="background:#e879b0"></span>All 34 UCs</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Data flows</div>
+    <a class="nav-item" href="#flows"><span class="nav-dot" style="background:#a68cff"></span>Auth, borrow, chat</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Docs & Learn</div>
+    <a class="nav-item" href="#docs"><span class="nav-dot" style="background:#5a6a85"></span>Project docs</a>
+    <a class="nav-item" href="#resources"><span class="nav-dot" style="background:#5a6a85"></span>Learning resources</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+  <!-- HERO -->
+  <div id="overview" class="section fade-up">
+    <div id="hero">
+      <div class="hero-eyebrow">project deep-dive</div>
+      <h1 class="hero-title">Uni<span>connect</span><br/>from zero to full-stack</h1>
+      <p class="hero-desc">A university social + utility platform. 34 use cases. React + TypeScript frontend, Node.js + Express backend, SQLite database. JWT auth. This page breaks down every layer — how it works, where code lives, and where to learn each part.</p>
+      <div class="hero-stack">
+        <span class="badge badge-blue">React 18</span>
+        <span class="badge badge-blue">TypeScript</span>
+        <span class="badge badge-blue">Vite</span>
+        <span class="badge badge-green">Node.js</span>
+        <span class="badge badge-green">Express</span>
+        <span class="badge badge-amber">SQLite</span>
+        <span class="badge badge-amber">better-sqlite3</span>
+        <span class="badge badge-red">JWT</span>
+        <span class="badge badge-gray">Vanilla CSS</span>
+      </div>
+    </div>
+
+    <!-- Architecture Summary -->
+    <div id="stack" style="margin-bottom:1.5rem">
+      <h2 style="font-family:var(--display);font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:1.25rem;letter-spacing:-.02em">System architecture</h2>
+
+      <div class="stack-layer">
+        <div class="stack-icon" style="background:rgba(79,158,255,.1)">🌐</div>
+        <div class="stack-info">
+          <div class="stack-name">Browser — React + TypeScript (Vite)</div>
+          <div class="stack-desc">Single-page app. All views are in <code>src/App.tsx</code> (10 sections). Communicates with the backend via <code>src/api.ts</code> which auto-injects the JWT from <code>localStorage</code> on every request.</div>
+        </div>
+      </div>
+      <div class="stack-arrow">↓ &nbsp; HTTP JSON &nbsp;+&nbsp; Authorization: Bearer &lt;JWT&gt;</div>
+      <div class="stack-layer">
+        <div class="stack-icon" style="background:rgba(45,212,160,.1)">⚙️</div>
+        <div class="stack-info">
+          <div class="stack-name">Server — Node.js + Express.js</div>
+          <div class="stack-desc">Entry at <code>server/index.js</code>. REST API across several route files. JWT verification middleware runs before every protected endpoint, attaching <code>req.user.id</code> to the request.</div>
+        </div>
+      </div>
+      <div class="stack-arrow">↓ &nbsp; better-sqlite3 &nbsp;(synchronous — no async/await needed)</div>
+      <div class="stack-layer">
+        <div class="stack-icon" style="background:rgba(245,166,35,.1)">🗄️</div>
+        <div class="stack-info">
+          <div class="stack-name">Database — SQLite via better-sqlite3</div>
+          <div class="stack-desc">Schema defined in <code>server/db.js</code>. Physical file is <code>server/uniconnect.db</code>. 10 tables covering users, study groups, resources, messages, notifications, lost & found, and moderation reports. Seeded via <code>server/seed.js</code>.</div>
+        </div>
+      </div>
+
+      <div class="learn-box">
+        <div class="learn-box-title">Learn the stack</div>
+        <div class="learn-links">
+          <a class="learn-link" href="https://react.dev/learn" target="_blank">React docs</a>
+          <a class="learn-link" href="https://www.typescriptlang.org/docs/handbook/intro.html" target="_blank">TypeScript handbook</a>
+          <a class="learn-link" href="https://vitejs.dev/guide/" target="_blank">Vite guide</a>
+          <a class="learn-link" href="https://expressjs.com/en/starter/hello-world.html" target="_blank">Express.js getting started</a>
+          <a class="learn-link" href="https://www.sqlite.org/index.html" target="_blank">SQLite docs</a>
+          <a class="learn-link" href="https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md" target="_blank">better-sqlite3 API</a>
+          <a class="learn-link" href="https://jwt.io/introduction" target="_blank">JWT intro</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILE TREE -->
+  <div id="files" class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <div>
+        <div class="section-title">File tree</div>
+        <div class="section-sub">Where everything lives in the monorepo</div>
+      </div>
+    </div>
+
+    <div class="tree">
+      <div class="tree-line"><span class="tree-dir">uniconnect/</span></div>
+      <!-- src -->
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-dir">src/</span> <span class="tree-note">frontend source</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-key">App.tsx</span> <span class="tree-note">⭐ all pages + routing — 10 commented sections (~130KB)</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-key">api.ts</span> <span class="tree-note">JWT-injecting fetch wrapper — use this for every API call</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-path">main.tsx</span> <span class="tree-note">React bootstrap — mounts App into index.html</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-path">index.css</span> <span class="tree-note">CSS variables, typography, global reset</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-path">App.css</span> <span class="tree-note">layout classes + keyframe animations</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-dir">components/</span> <span class="tree-warn">⚠ empty — future refactor target</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-dir">pages/</span> <span class="tree-warn">⚠ empty — future refactor target</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-dir">hooks/</span> <span class="tree-warn">⚠ empty — future refactor target</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">└─ </span><span class="tree-dir">assets/</span> <span class="tree-note">static images / icons</span></div>
+      <!-- server -->
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-dir">server/</span> <span class="tree-note">backend source</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-key">index.js</span> <span class="tree-note">Express entry — CORS, middleware, route mounts</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-key">db.js</span> <span class="tree-note">SQLite connection + all CREATE TABLE statements</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-path">seed.js</span> <span class="tree-note">dummy data — run with: node server/seed.js</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-path">uniconnect.db</span> <span class="tree-note">the actual SQLite database file</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-dir">routes/</span> <span class="tree-note">auth · users · resources · groups · messages · lostfound · reports</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">├─ </span><span class="tree-dir">middleware/</span> <span class="tree-note">JWT verifier (runs before all protected routes)</span></div>
+      <div class="tree-line tree-indent2"><span class="tree-path">└─ </span><span class="tree-path">package.json</span> <span class="tree-note">backend-only deps (express, jsonwebtoken, better-sqlite3)</span></div>
+      <!-- root files -->
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-path">index.html</span> <span class="tree-note">HTML shell — mounts the React SPA</span></div>
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-path">vite.config.ts</span> <span class="tree-note">build tool config</span></div>
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-path">tsconfig*.json</span> <span class="tree-note">TypeScript config (3 files: root, app, node)</span></div>
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-path">package.json</span> <span class="tree-note">frontend deps — separate from server/package.json</span></div>
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-path">tailwind.config.js</span> <span class="tree-note">exists but unused — vanilla CSS is used instead</span></div>
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-path">mission_fullstack.md</span> <span class="tree-note">source of truth — 34 UCs + full DB schema spec</span></div>
+      <div class="tree-line tree-indent1"><span class="tree-path">├─ </span><span class="tree-path">walkthrough-uniconnectUI</span> <span class="tree-note">UI refactor changelog</span></div>
+      <div class="tree-line tree-indent1"><span class="tree-path">└─ </span><span class="tree-path">Uniconnect_Context_For_AI.txt</span> <span class="tree-note">AI quick-start primer</span></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;border-color:rgba(245,166,35,.2)">
+      <div class="card-title"><span class="badge badge-amber">⚠ important</span> Two separate package.json files</div>
+      <div class="card-body">Root <code>package.json</code> manages the frontend (React, Vite, TypeScript). <code>server/package.json</code> manages the backend (Express, better-sqlite3, jsonwebtoken). They are totally independent. Run <code>npm install</code> in the root for frontend deps, and <code>cd server && npm install</code> for backend deps.</div>
+    </div>
+  </div>
+
+  <!-- FRONTEND -->
+  <div id="apitx" class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <div>
+        <div class="section-title">Frontend</div>
+        <div class="section-sub">React + TypeScript — everything in src/</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(79,158,255,.25);margin-bottom:1.5rem">
+      <div class="card-title"><code>src/api.ts</code> <span class="badge badge-blue">key file</span></div>
+      <div class="card-body">
+        The custom fetch wrapper. Exports <code>api.get()</code>, <code>api.post()</code>, <code>api.put()</code>, <code>api.delete()</code>. Before every request it reads the JWT from <code>localStorage</code> and injects it as an <code>Authorization: Bearer &lt;token&gt;</code> header automatically. No component ever has to manually deal with tokens.<br><br>
+        <strong style="color:var(--text)">Why this matters:</strong> Without it, every single API call across all 34 use cases would need to manually grab the token and set headers. <code>api.ts</code> centralizes that in one place — classic DRY principle.
+      </div>
+    </div>
+
+    <div id="apptsx">
+      <h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:1rem">App.tsx — 10 sections</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Every section is separated by a <code>/* ═══ SECTION N — ... ═══ */</code> comment. Every component has a JSDoc comment mapping it to its UC number. Click any section to expand.</p>
+
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-gray">S1</span><span class="section-block-title">Types & interfaces</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">TypeScript type definitions for every entity the frontend deals with: <code>User</code>, <code>Resource</code>, <code>StudyGroup</code>, <code>Message</code>, <code>Notification</code>, <code>LostFound</code>, <code>Report</code>. Think of this as the frontend's own schema — it mirrors the DB tables so TypeScript knows the shape of every API response.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-gray">S2</span><span class="section-block-title">Constants & config</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Static data like subject lists, resource category enums, and default configs. Centralizing these here means if you change a category name, you change it in one place and every dropdown/filter that uses it updates automatically.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-gray">S3</span><span class="section-block-title">Shared components</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Reusable UI pieces used across the whole app: modals, buttons, spinner loaders, notification badge. These are referenced by every section below — change one component here and it updates everywhere.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-blue">S4</span><span class="section-block-title">Auth pages — UC 1–3</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Login and Register views. On successful login: backend returns a JWT → <code>api.ts</code> stores it in <code>localStorage</code> → app redirects to dashboard. On register: same flow, account created first. These are the only pages accessible without a JWT.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-blue">S5</span><span class="section-block-title">Dashboard — UC 4–5</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Main landing screen after login. Makes multiple API calls on mount to aggregate stats (your resources, active borrows, unread notifications, study groups). Renders quick-access cards for each major feature area.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-green">S6</span><span class="section-block-title">Resource sharing — UC 6–13</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Post, browse, borrow, approve/reject borrow requests, mark returned, and rate resources (books, notes, equipment). Hits <code>/resources</code> and <code>/borrowrequests</code> routes. Binds to <code>Resources</code> → <code>BorrowRequests</code> → <code>Transactions</code> tables in that order.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-amber">S7</span><span class="section-block-title">Study partners & groups — UC 14–21</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Two sub-features: 1-on-1 partner matching (send/accept <code>PartnerRequest</code>) and group management (create, join, leave <code>StudyGroups</code> + <code>GroupMembers</code>). Also handles group chat and session scheduling within a group context.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-purple">S8</span><span class="section-block-title">Messaging & notifications — UC 22–26</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Direct messaging between users (Conversations + Messages tables) and an in-app notification feed (Notifications table). Notifications are created by the server when significant events happen — borrow approved, partner request, new message, etc.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-pink">S9</span><span class="section-block-title">Lost & found — UC 27–30</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Post a lost or found item with location/description, browse all active listings, claim an item, and mark it as resolved. Uses the <code>LostFound</code> table. Simple CRUD, but includes status state machine: open → claimed → resolved.</div>
+      </div>
+      <div class="section-block" onclick="toggle(this)">
+        <div class="section-block-header"><span class="badge badge-red">S10</span><span class="section-block-title">Admin & moderation — UC 31–34</span><span class="chevron">▶</span></div>
+        <div class="section-block-body">Admin-only panel. View and action flagged reports, manage (ban/unban) users, and see an audit log of moderation actions. Protected by both JWT middleware AND a role check (admin only) on the server side. Uses the <code>Reports</code> table.</div>
+      </div>
+    </div>
+
+    <div id="styling" class="card" style="margin-top:1.25rem">
+      <div class="card-title">Styling system — <code>index.css</code> + <code>App.css</code></div>
+      <div class="card-body">
+        No Tailwind, no component library — pure vanilla CSS.<br>
+        <code>index.css</code>: CSS custom properties (color palette, spacing scale, shadow tokens), typography reset, global base rules.<br>
+        <code>App.css</code>: Layout utility classes + <code>@keyframes</code> animations. Dark navy/cyan design theme.
+        <br><br>
+        <em style="color:var(--muted)">Tailwind config exists but is unused — the project was scaffolded with it but the team chose hand-rolled CSS instead.</em>
+      </div>
+    </div>
+
+    <div class="learn-box">
+      <div class="learn-box-title">Learn frontend concepts</div>
+      <div class="learn-links">
+        <a class="learn-link" href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">React Context</a>
+        <a class="learn-link" href="https://react.dev/reference/react/useState" target="_blank">useState hook</a>
+        <a class="learn-link" href="https://react.dev/reference/react/useEffect" target="_blank">useEffect hook</a>
+        <a class="learn-link" href="https://reactrouter.com/en/main/start/concepts" target="_blank">React Router concepts</a>
+        <a class="learn-link" href="https://www.typescriptlang.org/docs/handbook/2/types-from-types.html" target="_blank">TypeScript types</a>
+        <a class="learn-link" href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" target="_blank">Fetch API (MDN)</a>
+        <a class="learn-link" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage (MDN)</a>
+        <a class="learn-link" href="https://css-tricks.com/a-complete-guide-to-custom-properties/" target="_blank">CSS custom properties</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKEND -->
+  <div id="express" class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <div>
+        <div class="section-title">Backend</div>
+        <div class="section-sub">Node.js + Express — everything in server/</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:.75rem">
+      <div class="card-title"><code>server/index.js</code> <span class="badge badge-green">entry point</span></div>
+      <div class="card-body">Creates the Express app → registers <code>cors</code> middleware → registers <code>express.json()</code> body parser → mounts all route files under their URL prefixes (e.g. <code>/api/auth</code>, <code>/api/resources</code>) → calls <code>app.listen(PORT)</code>. Everything boots from here.</div>
+    </div>
+
+    <div id="routes">
+      <h3 style="font-size:14px;font-weight:600;color:#fff;margin:1.25rem 0 .75rem">server/routes/ — one file per domain</h3>
+      <div class="card" style="margin-bottom:6px"><div class="card-title"><code>auth.js</code></div><div class="card-body">POST <code>/register</code> — hashes password (bcrypt), inserts user, returns JWT.<br>POST <code>/login</code> — verifies password hash, signs and returns JWT.</div></div>
+      <div class="card" style="margin-bottom:6px"><div class="card-title"><code>users.js</code></div><div class="card-body">GET/PUT profile, search users by name/subject, update ratings after a borrow transaction.</div></div>
+      <div class="card" style="margin-bottom:6px"><div class="card-title"><code>resources.js</code></div><div class="card-body">Full CRUD for resources. Also handles borrow requests: create → approve/reject → mark returned. Creates Transactions and triggers Notifications.</div></div>
+      <div class="card" style="margin-bottom:6px"><div class="card-title"><code>groups.js</code></div><div class="card-body">Create study groups, join by ID, leave, list members. Writes to <code>StudyGroups</code> and <code>GroupMembers</code>.</div></div>
+      <div class="card" style="margin-bottom:6px"><div class="card-title"><code>messages.js</code></div><div class="card-body">Start a conversation between two users, send a message, list all conversations for current user, read a thread.</div></div>
+      <div class="card" style="margin-bottom:6px"><div class="card-title"><code>lostfound.js</code></div><div class="card-body">Post / browse / claim / resolve lost-and-found items. Status transitions handled here.</div></div>
+      <div class="card" style="margin-bottom:6px"><div class="card-title"><code>reports.js</code></div><div class="card-body">Admin only. GET all reports, update status (reviewed/actioned), ban user. Protected by a secondary admin role check beyond just the JWT middleware.</div></div>
+    </div>
+
+    <div id="middleware" style="margin-top:1.25rem">
+      <h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:.75rem">server/middleware/ — JWT guard</h3>
+      <div class="card" style="border-color:rgba(240,86,106,.2)">
+        <div class="card-title"><code>auth.js</code> middleware <span class="badge badge-red">runs before every protected route</span></div>
+        <div class="card-body">
+          Reads the <code>Authorization</code> header → strips <code>"Bearer "</code> prefix → calls <code>jwt.verify(token, SECRET)</code>.<br>
+          If valid: attaches <code>req.user = { id: ... }</code> and calls <code>next()</code> so the route handler runs.<br>
+          If invalid/expired/missing: immediately responds with <code>401 Unauthorized</code> — the route never fires.<br><br>
+          This is how the backend knows <em>who</em> is making every request. Route handlers use <code>req.user.id</code> to scope queries (e.g. "get resources owned by this user").
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:.75rem">
+      <div class="card-title"><code>server/db.js</code> <span class="badge badge-amber">DB layer</span></div>
+      <div class="card-body">Opens the SQLite connection with <code>better-sqlite3</code>. Contains all <code>CREATE TABLE IF NOT EXISTS</code> statements. They run <strong style="color:var(--text)">synchronously</strong> at server startup — no async/await needed anywhere in the DB layer, which makes query code much simpler.</div>
+    </div>
+
+    <div class="learn-box">
+      <div class="learn-box-title">Learn backend concepts</div>
+      <div class="learn-links">
+        <a class="learn-link" href="https://expressjs.com/en/guide/routing.html" target="_blank">Express routing</a>
+        <a class="learn-link" href="https://expressjs.com/en/guide/using-middleware.html" target="_blank">Express middleware</a>
+        <a class="learn-link" href="https://jwt.io/introduction" target="_blank">JWT explained</a>
+        <a class="learn-link" href="https://github.com/auth0/node-jsonwebtoken#readme" target="_blank">jsonwebtoken npm</a>
+        <a class="learn-link" href="https://www.npmjs.com/package/bcrypt" target="_blank">bcrypt for passwords</a>
+        <a class="learn-link" href="https://www.npmjs.com/package/cors" target="_blank">cors npm</a>
+        <a class="learn-link" href="https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md" target="_blank">better-sqlite3 API</a>
+        <a class="learn-link" href="https://restfulapi.net/" target="_blank">REST API principles</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATABASE -->
+  <div id="schema" class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <div>
+        <div class="section-title">Database schema</div>
+        <div class="section-sub">10 tables in server/db.js · stored in server/uniconnect.db</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.25rem">
+      <span style="color:var(--amber)">PK</span> = primary key &nbsp;·&nbsp;
+      <span style="color:var(--accent)">FK</span> = foreign key &nbsp;·&nbsp;
+      All tables use SQLite syntax (INTEGER PRIMARY KEY AUTOINCREMENT, TEXT, etc.)
+    </p>
+
+    <table class="db-table">
+      <thead><tr><th>Table</th><th>Purpose</th><th>Key columns</th></tr></thead>
+      <tbody>
+        <tr><td>Users</td><td>Student accounts, auth, profile</td><td>id<span class="pk">PK</span>, email, password_hash, rating, privacy_prefs, role</td></tr>
+        <tr><td>StudyGroups</td><td>Study group metadata</td><td>id<span class="pk">PK</span>, name, subject, description, creator_id<span class="fk">FK</span></td></tr>
+        <tr><td>GroupMembers</td><td>Group roster (many-to-many)</td><td>group_id<span class="fk">FK</span>, user_id<span class="fk">FK</span>, role (admin/member)</td></tr>
+        <tr><td>PartnerRequests</td><td>1-on-1 study buddy matching</td><td>id<span class="pk">PK</span>, from_user<span class="fk">FK</span>, to_user<span class="fk">FK</span>, status (pending/accepted/rejected)</td></tr>
+        <tr><td>Resources</td><td>Books, notes, equipment listings</td><td>id<span class="pk">PK</span>, owner_id<span class="fk">FK</span>, type, title, availability, condition</td></tr>
+        <tr><td>BorrowRequests</td><td>Lending request lifecycle</td><td>id<span class="pk">PK</span>, resource_id<span class="fk">FK</span>, borrower_id<span class="fk">FK</span>, status, message</td></tr>
+        <tr><td>Transactions</td><td>Completed borrow exchanges</td><td>id<span class="pk">PK</span>, borrow_request_id<span class="fk">FK</span>, borrowed_at, returned_at</td></tr>
+        <tr><td>Conversations</td><td>DM chat threads</td><td>id<span class="pk">PK</span>, participant_ids (JSON array)</td></tr>
+        <tr><td>Messages</td><td>Individual chat messages</td><td>id<span class="pk">PK</span>, conversation_id<span class="fk">FK</span>, sender_id<span class="fk">FK</span>, body, created_at</td></tr>
+        <tr><td>Notifications</td><td>In-app alert feed</td><td>id<span class="pk">PK</span>, user_id<span class="fk">FK</span>, type, read (bool), payload (JSON)</td></tr>
+        <tr><td>LostFound</td><td>Lost & found item listings</td><td>id<span class="pk">PK</span>, reporter_id<span class="fk">FK</span>, status, location, image_url</td></tr>
+        <tr><td>Reports</td><td>Moderation flags</td><td>id<span class="pk">PK</span>, reporter_id<span class="fk">FK</span>, target_user_id<span class="fk">FK</span>, reason, status</td></tr>
+      </tbody>
+    </table>
+
+    <div id="pipeline">
+      <h3 style="font-size:14px;font-weight:600;color:#fff;margin:1.5rem 0 .75rem">Key table relationships</h3>
+
+      <div class="pipeline">
+        <div class="pipeline-title">Resource lending pipeline</div>
+        <div class="flow">
+          <div class="flow-step" style="border-color:rgba(45,212,160,.3);color:var(--green)">Resources</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">owner posts listing</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step" style="border-color:rgba(79,158,255,.3);color:var(--accent)">BorrowRequests</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">owner approves</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step" style="border-color:rgba(245,166,35,.3);color:var(--amber)">Transactions</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">returned_at filled</div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:.5rem">Three tables chain together. The BorrowRequest status goes: pending → accepted/rejected. Once accepted, a Transaction row is created. When returned, Transaction.returned_at is set.</p>
+      </div>
+
+      <div class="pipeline">
+        <div class="pipeline-title">Study group pipeline</div>
+        <div class="flow">
+          <div class="flow-step" style="border-color:rgba(245,166,35,.3);color:var(--amber)">StudyGroups</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">creator joins automatically</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step" style="border-color:rgba(79,158,255,.3);color:var(--accent)">GroupMembers</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">other users join</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">Messages (group chat)</div>
+        </div>
+      </div>
+
+      <div class="pipeline">
+        <div class="pipeline-title">Notifications — auto-generated events</div>
+        <div class="flow">
+          <div class="flow-step">borrow approved</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">partner request received</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">new DM message</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step" style="border-color:rgba(232,121,176,.3);color:var(--pink)">Notifications row created</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-step">frontend polls / reads</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="learn-box">
+      <div class="learn-box-title">Learn SQL + SQLite</div>
+      <div class="learn-links">
+        <a class="learn-link" href="https://sqlitebrowser.org/" target="_blank">DB Browser for SQLite (GUI)</a>
+        <a class="learn-link" href="https://www.w3schools.com/sql/sql_join.asp" target="_blank">SQL JOINs explained</a>
+        <a class="learn-link" href="https://www.sqlitetutorial.net/" target="_blank">SQLite tutorial</a>
+        <a class="learn-link" href="https://www.sqlitetutorial.net/sqlite-foreign-key/" target="_blank">SQLite foreign keys</a>
+        <a class="learn-link" href="https://drawsql.app/" target="_blank">drawSQL — ER diagram tool</a>
+        <a class="learn-link" href="https://www.sqlitetutorial.net/sqlite-autoincrement/" target="_blank">AUTOINCREMENT in SQLite</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA FLOWS -->
+  <div id="flows" class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <div>
+        <div class="section-title">Data flows</div>
+        <div class="section-sub">How requests travel from browser to database and back</div>
+      </div>
+    </div>
+
+    <div class="pipeline" style="margin-bottom:.75rem">
+      <div class="pipeline-title">App boot</div>
+      <div class="flow">
+        <div class="flow-step">index.html loads</div><span class="flow-arr">→</span>
+        <div class="flow-step">main.tsx mounts App</div><span class="flow-arr">→</span>
+        <div class="flow-step">App.tsx renders</div><span class="flow-arr">→</span>
+        <div class="flow-step">check localStorage for JWT</div><span class="flow-arr">→</span>
+        <div class="flow-step" style="border-color:rgba(45,212,160,.3);color:var(--green)">show dashboard OR login</div>
+      </div>
+    </div>
+
+    <div class="pipeline" style="margin-bottom:.75rem">
+      <div class="pipeline-title">Login flow</div>
+      <div class="flow">
+        <div class="flow-step">user fills form</div><span class="flow-arr">→</span>
+        <div class="flow-step">api.post('/auth/login')</div><span class="flow-arr">→</span>
+        <div class="flow-step">Express auth route</div><span class="flow-arr">→</span>
+        <div class="flow-step">verify bcrypt hash</div><span class="flow-arr">→</span>
+        <div class="flow-step">jwt.sign()</div><span class="flow-arr">→</span>
+        <div class="flow-step" style="border-color:rgba(240,86,106,.3);color:var(--red)">store in localStorage</div>
+      </div>
+    </div>
+
+    <div class="pipeline" style="margin-bottom:.75rem">
+      <div class="pipeline-title">Every protected API request</div>
+      <div class="flow">
+        <div class="flow-step">api.get('/resources')</div><span class="flow-arr">→</span>
+        <div class="flow-step" style="border-color:rgba(240,86,106,.3);color:var(--red)">api.ts injects JWT header</div><span class="flow-arr">→</span>
+        <div class="flow-step">middleware verifies token</div><span class="flow-arr">→</span>
+        <div class="flow-step">req.user.id attached</div><span class="flow-arr">→</span>
+        <div class="flow-step">route handler runs</div><span class="flow-arr">→</span>
+        <div class="flow-step">SQLite query</div><span class="flow-arr">→</span>
+        <div class="flow-step" style="border-color:rgba(45,212,160,.3);color:var(--green)">JSON response</div>
+      </div>
+    </div>
+
+    <div class="pipeline" style="margin-bottom:.75rem">
+      <div class="pipeline-title">Resource borrow flow</div>
+      <div class="flow">
+        <div class="flow-step">browse resources</div><span class="flow-arr">→</span>
+        <div class="flow-step">click Borrow</div><span class="flow-arr">→</span>
+        <div class="flow-step">POST BorrowRequest</div><span class="flow-arr">→</span>
+        <div class="flow-step">Notification created for owner</div><span class="flow-arr">→</span>
+        <div class="flow-step">owner approves</div><span class="flow-arr">→</span>
+        <div class="flow-step" style="border-color:rgba(245,166,35,.3);color:var(--amber)">Transaction row created</div>
+      </div>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-title">Sending a direct message</div>
+      <div class="flow">
+        <div class="flow-step">open DM with user</div><span class="flow-arr">→</span>
+        <div class="flow-step">POST /conversations (if new)</div><span class="flow-arr">→</span>
+        <div class="flow-step">POST /messages with conversation_id</div><span class="flow-arr">→</span>
+        <div class="flow-step">Message row inserted</div><span class="flow-arr">→</span>
+        <div class="flow-step" style="border-color:rgba(232,121,176,.3);color:var(--pink)">Notification for recipient</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USE CASES -->
+  <div id="usecases" class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <div>
+        <div class="section-title">34 use cases</div>
+        <div class="section-sub">The full feature spec — what the platform is supposed to do</div>
+      </div>
+    </div>
+
+    <div class="uc-grid">
+      <div class="uc-card">
+        <div class="uc-card-title"><span class="badge badge-blue">UC 1–5</span> Auth & profile</div>
+        <div class="uc-card-list">
+          UC1 · Register account<br>
+          UC2 · Login<br>
+          UC3 · Logout<br>
+          UC4 · View profile<br>
+          UC5 · Edit profile + privacy settings
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-title"><span class="badge badge-green">UC 6–13</span> Resource sharing</div>
+        <div class="uc-card-list">
+          UC6 · Post a resource<br>
+          UC7 · Browse resources<br>
+          UC8 · Search by category<br>
+          UC9 · Send borrow request<br>
+          UC10 · Approve / reject request<br>
+          UC11 · Mark as returned<br>
+          UC12 · Rate borrower/lender<br>
+          UC13 · Delete own resource
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-title"><span class="badge badge-amber">UC 14–21</span> Study partners & groups</div>
+        <div class="uc-card-list">
+          UC14 · Find study partner<br>
+          UC15 · Send partner request<br>
+          UC16 · Accept / reject request<br>
+          UC17 · Create study group<br>
+          UC18 · Join a group<br>
+          UC19 · Leave a group<br>
+          UC20 · Group chat<br>
+          UC21 · Schedule group session
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-title"><span class="badge badge-purple">UC 22–26</span> Messaging & notifications</div>
+        <div class="uc-card-list">
+          UC22 · Start a conversation<br>
+          UC23 · Send direct message<br>
+          UC24 · Read conversation thread<br>
+          UC25 · View notification feed<br>
+          UC26 · Mark notifications as read
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-title"><span class="badge badge-pink">UC 27–30</span> Lost & found</div>
+        <div class="uc-card-list">
+          UC27 · Post lost/found item<br>
+          UC28 · Browse listings<br>
+          UC29 · Claim an item<br>
+          UC30 · Mark as resolved
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-title"><span class="badge badge-red">UC 31–34</span> Admin & moderation</div>
+        <div class="uc-card-list">
+          UC31 · Report a user<br>
+          UC32 · Admin views all reports<br>
+          UC33 · Admin bans/unbans user<br>
+          UC34 · Audit log of mod actions
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCS -->
+  <div id="docs" class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <div>
+        <div class="section-title">Project docs</div>
+        <div class="section-sub">Documentation files in the repo root</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:.75rem">
+      <div class="card-title"><code>mission_fullstack.md</code> <span class="badge badge-green">source of truth</span></div>
+      <div class="card-body">The original architecture and goals document. Contains all 34 use cases and the full DB schema spec. This is what the entire codebase was built against. Before adding any feature, check here first to see if it's already specced.</div>
+    </div>
+    <div class="card" style="margin-bottom:.75rem">
+      <div class="card-title"><code>walkthrough-uniconnectUI</code> &amp; <code>walkthrough-2.32</code></div>
+      <div class="card-body">Detailed changelogs of how App.tsx was refactored and annotated over time — how the 10 section structure was introduced, JSDoc annotations added, and components reorganized. Read these to understand <em>why</em> the file is structured the way it is.</div>
+    </div>
+    <div class="card" style="margin-bottom:.75rem">
+      <div class="card-title"><code>Uniconnect_Context_For_AI.txt</code></div>
+      <div class="card-body">Quick-start primer for AI tools. Upload this at the start of any AI session to give the assistant immediate orientation about the stack, file layout, and where to find things. Saves a lot of back-and-forth explanation.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><code>README.md</code></div>
+      <div class="card-body">General project docs. Setup instructions, how to run the frontend dev server and the backend node server, overview of the platform for new contributors.</div>
+    </div>
+  </div>
+
+  <!-- LEARNING RESOURCES -->
+  <div id="resources" class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <div>
+        <div class="section-title">Learning resources</div>
+        <div class="section-sub">Best places to learn every technology used in this project</div>
+      </div>
+    </div>
+
+    <div class="resource-grid">
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-blue">React</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://react.dev/learn" target="_blank">Official React docs (best)</a>
+          <a class="learn-link" href="https://www.youtube.com/watch?v=SqcY0GlETPk" target="_blank">React in 1 hour — Fireship</a>
+          <a class="learn-link" href="https://react.dev/learn/thinking-in-react" target="_blank">Thinking in React</a>
+          <a class="learn-link" href="https://react.dev/learn/managing-state" target="_blank">Managing state</a>
+          <a class="learn-link" href="https://www.youtube.com/playlist?list=PL4cUxeGkcC9gZD-Tvwfod2gaISzfRiP9d" target="_blank">Net Ninja React playlist</a>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-blue">TypeScript</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://www.typescriptlang.org/docs/handbook/2/basic-types.html" target="_blank">TS Handbook — basics</a>
+          <a class="learn-link" href="https://www.typescriptlang.org/docs/handbook/2/objects.html" target="_blank">Object types & interfaces</a>
+          <a class="learn-link" href="https://www.youtube.com/watch?v=BCg4U1FzODs" target="_blank">TypeScript crash course — Brad Traversy</a>
+          <a class="learn-link" href="https://ts.dev/style/" target="_blank">Google TS style guide</a>
+          <a class="learn-link" href="https://www.totaltypescript.com/tutorials" target="_blank">Total TypeScript (free exercises)</a>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-green">Node.js + Express</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://nodejs.org/en/learn/getting-started/introduction-to-nodejs" target="_blank">Node.js official intro</a>
+          <a class="learn-link" href="https://expressjs.com/en/guide/routing.html" target="_blank">Express routing guide</a>
+          <a class="learn-link" href="https://expressjs.com/en/guide/using-middleware.html" target="_blank">Express middleware guide</a>
+          <a class="learn-link" href="https://www.youtube.com/watch?v=Oe421EPjeBE" target="_blank">Node.js + Express crash course</a>
+          <a class="learn-link" href="https://restfulapi.net/" target="_blank">REST API design principles</a>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-red">JWT & Auth</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://jwt.io/introduction" target="_blank">JWT.io — interactive intro</a>
+          <a class="learn-link" href="https://www.npmjs.com/package/jsonwebtoken" target="_blank">jsonwebtoken npm docs</a>
+          <a class="learn-link" href="https://www.npmjs.com/package/bcrypt" target="_blank">bcrypt npm docs</a>
+          <a class="learn-link" href="https://www.youtube.com/watch?v=7Q17ubqLfaM" target="_blank">JWT auth in Node.js — Web Dev Simplified</a>
+          <a class="learn-link" href="https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html" target="_blank">OWASP JWT security tips</a>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-amber">SQLite & SQL</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://www.sqlitetutorial.net/" target="_blank">SQLite tutorial (full)</a>
+          <a class="learn-link" href="https://sqlitebrowser.org/" target="_blank">DB Browser for SQLite (GUI)</a>
+          <a class="learn-link" href="https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md" target="_blank">better-sqlite3 API docs</a>
+          <a class="learn-link" href="https://www.w3schools.com/sql/" target="_blank">W3Schools SQL reference</a>
+          <a class="learn-link" href="https://sqlzoo.net/" target="_blank">SQLZoo — interactive practice</a>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-blue">Vite + Tooling</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://vitejs.dev/guide/" target="_blank">Vite official guide</a>
+          <a class="learn-link" href="https://www.typescriptlang.org/tsconfig/" target="_blank">tsconfig reference</a>
+          <a class="learn-link" href="https://eslint.org/docs/latest/use/getting-started" target="_blank">ESLint getting started</a>
+          <a class="learn-link" href="https://nodejs.org/en/learn/getting-started/the-package-json-guide" target="_blank">package.json explained</a>
+          <a class="learn-link" href="https://docs.npmjs.com/cli/v10/commands" target="_blank">npm CLI commands</a>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-gray">CSS</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://css-tricks.com/a-complete-guide-to-custom-properties/" target="_blank">CSS custom properties guide</a>
+          <a class="learn-link" href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank">Flexbox — CSS Tricks</a>
+          <a class="learn-link" href="https://css-tricks.com/snippets/css/complete-guide-grid/" target="_blank">CSS Grid — CSS Tricks</a>
+          <a class="learn-link" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Animations/Using_CSS_animations" target="_blank">CSS animations (MDN)</a>
+          <a class="learn-link" href="https://web.dev/learn/css" target="_blank">web.dev/learn/css (Google)</a>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <div class="resource-card-title"><span class="badge badge-purple">Architecture & patterns</span></div>
+        <div class="learn-links" style="flex-direction:column;gap:5px">
+          <a class="learn-link" href="https://www.patterns.dev/" target="_blank">patterns.dev — JS patterns</a>
+          <a class="learn-link" href="https://reactrouter.com/en/main/start/concepts" target="_blank">React Router concepts</a>
+          <a class="learn-link" href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" target="_blank">Fetch API (MDN)</a>
+          <a class="learn-link" href="https://www.freecodecamp.org/news/how-to-build-a-full-stack-application-from-scratch/" target="_blank">Full-stack from scratch — fCC</a>
+          <a class="learn-link" href="https://github.com/donnemartin/system-design-primer" target="_blank">System design primer (GitHub)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('open');
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('[id]');
+const navItems = document.querySelectorAll('.nav-item');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const match = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+      if (match) match.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -65% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

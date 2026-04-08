@@ -1,0 +1,34 @@
+# Execution Log: Phase 1 - Dashboard & Profile Hydration
+
+## 1. Executive Summary
+The goal of this phase was to ensure that newly registered accounts (which successfully write to the SQLite database) are reflected accurately across the application. The frontend React components (`DashboardPage` and `ProfilePage`) were previously relying on hardcoded arrays and mock objects. We orchestrated a full data hydration pass to bind these UI components to the live database using `useEffect` data fetching and state management.
+
+## 2. Technical Implementation Details
+
+### Backend Alterations
+- **File:** `server/routes/users.js`
+- **Action:** Created a new secure endpoint `GET /api/users/dashboard` explicitly to serve user context to the frontend.
+- **Code Logic:** Utilized SQLite `db.prepare().get()` queries to aggregate the actual counts of active study partners, active groups, listed resources, and active loans mapped specifically to the authenticated `req.user.id`. 
+- **Security:** Placed entirely under the `authMiddleware` JWT verification barrier.
+
+### Frontend Alterations
+- **File:** `src/App.tsx` (React Hooks Integration)
+- **Component 1: `DashboardPage`**
+  - Removed standard static React props.
+  - Injected `useState({ partners: 0, groups: 0, resources: 0, loans: 0 })`.
+  - Mounted a `useEffect` on load to asynchronously invoke `api.get('/api/users/dashboard')` and dynamically set the state.
+  - Replaced `<StatCard />` hardcoded `value={2}` properties with the variable destructured `{stats.groups}`, `{stats.partners}`, etc.
+  - Bound the dynamic user greeting in the top banner (`user?.name?.split(' ')[0]`) passing the true user down through props.
+
+- **Component 2: `ProfilePage`**
+  - Injected standard state hooks for profile management.
+  - Mounted a `useEffect` on load to call the existing `GET /api/users/me` endpoint.
+  - Stripped static mock variables (`user.name`, `user.bio`) entirely and replaced them with the live state object fields populated directly from the local database.
+
+- **Component 3: `RegisterPage`**
+  - Added strict email validation rules formatting algorithmically inside the `handleSubmit` cycle. Hardcoded logic to strictly throw an error `if (!email.trim().toLowerCase().endsWith("@university.edu"))`.
+
+## 3. Verification & Testing
+- Triggered Vite Hot Module Replacement (HMR).
+- Manually checked rendering of Dashboard on fresh account.
+- Confirmed UI mathematics display as true `0`s for completely new accounts instead of inheriting the fake data arrays.

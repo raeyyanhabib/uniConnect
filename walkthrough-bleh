@@ -1,0 +1,23 @@
+# 🚀 UniConnect Modernization & Integrity Update
+
+## 1. 🎨 New Aesthetic Ecosystem
+We replaced the robotic blues and harsh backgrounds with a strictly **modern, luxury academic ecosystem**.
+- **Dark Mode Palette**: We implemented `#0F172A` Deep Slate base backgrounds combined with `#1E293B` Surface Cards that project a very clean atmosphere.
+- **Glass-morphism and Interactivity**: Cards now use thin transparent borders (`rgba(255,255,255,0.08)`) and have a 16px border-radius plus fluid hover-interactions utilizing `transform: translateY(-4px)` to bring the UI to life, ensuring it feels ultra-premium.
+
+## 2. 🔐 Real-Time Validation & Rules
+The UI registration has been made completely bullet-proof according to campus logic:
+- The backend/frontend now enforce `[roll]@campus.nu.edu.pk` logic dynamically.
+- `lhr` defaults to `l`, `isb` defaults to `i`, etc. It handles mapping letters and calculates the exact active semester dynamically using year `24` vs the `26` calculation rule.
+
+## 3. 👥 Study Groups & Change Password UI
+- We successfully integrated the Change Password Form right inside [ProfilePage](file:///d:/AG%20Projects/src/App.tsx#1153-1286) strictly checking the auth block.
+- Study groups have been configured so that group-creators dictate `maxMembers` rather than rigid sizes.
+- Notification decrements have been tied into robust polling via `useEffect`.
+
+## 4. 🗄️ Database Pre-Seeding
+We wrote a bespoke Node script that ensures [uniconnect.db](file:///d:/AG%20Projects/server/uniconnect.db) is primed.
+- Bootstrapped using `bcryptjs` and raw SQL inserts, the database now specifically holds `Raeyyan Habib`, `Hassan Rizwan`, and others out of the box with the proper passwords so you can test them instantly without making ghost accounts. Admins are fully registered natively.
+
+## 🎮 Launch Checklist
+If you run `npm run dev` in the root, and `node index.js` in `./server`, you'll be greeted by the entirely remodeled environment, fully real-time and error-free!

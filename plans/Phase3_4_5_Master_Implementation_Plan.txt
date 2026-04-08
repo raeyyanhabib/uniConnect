@@ -1,0 +1,33 @@
+# Master Plan: Phase 3, 4, and 5 (Core Features & Formatting Pass)
+
+## 1. Executive Summary
+The goal of this multi-phase master plan is to entirely eliminate the final vestiges of hardcoded mock data spanning across `StudyPartnersPage`, `StudyGroupsPage`, `ResourcesPage`, and `LostFoundPage`. Along with architectural hydration, an application-wide formatting pass will be executed to guarantee extremely well-commented code blocks, rigorous blank-line isolation, and proper indentation per user directives.
+
+## 2. Technical Roadmap
+
+### Phase 3: Study Partners & Groups (`src/App.tsx`)
+- **Partners Component (`<StudyPartnersPage>`):**
+  - **Data source swap:** Remove `studyPartners` dummy array. Replace entirely with `React.useEffect` mapping to `GET /api/partners/search` and `GET /api/partners/requests`.
+  - **Mutation hooks:** Build async handlers mapped to `POST /api/partners/requests` and `PUT /api/partners/requests/:id`.
+- **Groups Component (`<StudyGroupsPage>`):**
+  - **Data source swap:** Wipe `studyGroups` static matrix. Orchestrate network requests fetching from `GET /api/groups/discover` and `/mine`.
+  - **Mutation hooks:** The "Create Group" logic will invoke `POST /api/groups`.
+
+### Phase 4: Resource Marketplace (`src/App.tsx`)
+- **Resources Component (`<ResourcesPage>`):**
+  - Translate the `<ResourceCard>` props to map dynamically to `GET /api/resources` columns (`ownerId`, `condition`, `status`).
+  - Wire listing creation to `POST /api/resources`.
+
+### Phase 5: Lost & Found (`src/App.tsx`)
+- **Lost & Found Tracker (`<LostFoundPage>`):**
+  - Strip static item lists in favor of live DB connection. Allow "Report Item" UI modal to directly mutate the database registry.
+
+## 3. The Formatting Directive
+The user demanded explicit block definitions. Every payload insertion will utilize aggressive line-breaking and descriptive demarcations, e.g.:
+
+```tsx
+// ----------------------------------------------------------------------------
+// HANDLER: Create a new Study Group in the Platform
+// Validates frontend inputs before executing a POST network call.
+// ----------------------------------------------------------------------------
+```

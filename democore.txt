@@ -1,0 +1,1911 @@
+import { useState, useEffect, useRef } from "react";
+import {
+  BookOpen, Users, Package, MessageSquare, Bell, MapPin, Shield,
+  Home, LogOut, Search, Plus, Star, Clock, Check, X, AlertTriangle,
+  Edit, Trash2, Filter, ArrowLeft, Send, User, Settings, Lock,
+  ChevronDown, FileText, UserCheck, UserX, Flag, CheckCircle,
+  XCircle, Eye, Award, TrendingUp, Calendar, BarChart2,
+  ChevronRight, RefreshCw, Layers, Activity, AlertCircle,
+  MoreHorizontal, BookMarked, Mail, KeyRound, Building,
+  GraduationCap, Hash, Pause, Play, ToggleLeft, ToggleRight,
+  Info, Heart, Zap, Share2, UserPlus, UserMinus, Volume2,
+  ChevronUp, Image, Download, ExternalLink, Copy, Camera
+} from "lucide-react";
+
+// ══════════════════════════════════════════════════════════════
+// GLOBAL STYLES INJECTOR
+// ══════════════════════════════════════════════════════════════
+function GlobalStyles() {
+  useEffect(() => {
+    const el = document.createElement("style");
+    el.textContent = `
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; overflow: hidden; }
+      body { font-family: 'Outfit', sans-serif; background: #060B18; color: #E8F0FE; margin: 0; }
+      #root { height: 100%; }
+      ::selection { background: rgba(14,165,233,0.3); color: #fff; }
+      ::-webkit-scrollbar { width: 5px; height: 5px; }
+      ::-webkit-scrollbar-track { background: #0A1020; }
+      ::-webkit-scrollbar-thumb { background: #1A3055; border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: #264575; }
+      input, textarea, select, button { font-family: 'Outfit', sans-serif; }
+      .pageAnim { animation: pgIn 0.22s ease forwards; }
+      @keyframes pgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .fadeIn { animation: fdIn 0.3s ease forwards; }
+      @keyframes fdIn { from { opacity: 0; } to { opacity: 1; } }
+      .pulse { animation: plsAnim 2s infinite; }
+      @keyframes plsAnim {
+        0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+        70%  { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
+        100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+      }
+      .spin { animation: spnAnim 0.8s linear infinite; }
+      @keyframes spnAnim { to { transform: rotate(360deg); } }
+      .cardHover { transition: border-color 0.2s, background 0.2s, transform 0.2s; }
+      .cardHover:hover { border-color: #1E4A8A !important; background: #172240 !important; transform: translateY(-1px); }
+      .sideNavItem { transition: all 0.15s ease; }
+      .sideNavItem:hover { background: rgba(14,165,233,0.08); }
+      .sideNavActive { background: rgba(14,165,233,0.14) !important; border-right: 2px solid #0EA5E9; }
+      .tabBtn { transition: all 0.15s ease; }
+      .tabActive { border-bottom: 2px solid #0EA5E9; color: #38BDF8 !important; }
+      .msgBubbleMine { background: linear-gradient(135deg,#0EA5E9,#0284C7); border-radius: 16px 16px 4px 16px; }
+      .msgBubbleOther { background: #131F35; border: 1px solid #1A2E50; border-radius: 16px 16px 16px 4px; }
+      .chip { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+      .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:100; display:flex; align-items:center; justify-content:center; animation: fdIn 0.15s ease; }
+      .modal { background:#0F1829; border:1px solid #1A2E50; border-radius:16px; max-width:520px; width:90%; max-height:85vh; overflow-y:auto; }
+      .authCard { background:rgba(15,24,41,0.9); backdrop-filter:blur(20px); border:1px solid #1A3055; border-radius:20px; }
+      .starFilled { color: #F59E0B; }
+      .starEmpty  { color: #2A3E60; }
+    `;
+    document.head.appendChild(el);
+    return () => document.head.removeChild(el);
+  }, []);
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// DESIGN TOKENS
+// ══════════════════════════════════════════════════════════════
+const C = {
+  base: "#060B18", depth: "#0A1020", surface: "#0F1829",
+  card: "#131F35", cardAlt: "#172240",
+  border: "#1A2E50", borderLight: "#213660",
+  cyan: "#0EA5E9", cyanLt: "#38BDF8", cyanDk: "#0284C7",
+  amber: "#F59E0B", amberLt: "#FCD34D",
+  green: "#10B981", red: "#EF4444", purple: "#8B5CF6", pink: "#EC4899",
+  tx: "#F0F6FF", txS: "#8BA8CC", txM: "#4A6888",
+};
+
+const inp = {
+  width: "100%", background: C.depth, border: `1px solid ${C.border}`,
+  borderRadius: "8px", padding: "10px 14px", color: C.tx, fontSize: "14px",
+};
+const btnP = {
+  background: `linear-gradient(135deg,${C.cyan},${C.cyanDk})`, color: "#fff",
+  border: "none", borderRadius: "8px", padding: "10px 20px",
+  fontSize: "14px", fontWeight: 600, cursor: "pointer",
+  display: "flex", alignItems: "center", gap: "6px",
+};
+const btnS = {
+  background: "transparent", color: C.cyan, border: `1px solid ${C.cyan}`,
+  borderRadius: "8px", padding: "10px 20px", fontSize: "14px", fontWeight: 500,
+  cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
+};
+const btnD = {
+  background: "rgba(239,68,68,0.12)", color: C.red, border: `1px solid rgba(239,68,68,0.3)`,
+  borderRadius: "8px", padding: "8px 14px", fontSize: "13px", fontWeight: 500,
+  cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
+};
+const btnG = {
+  background: "rgba(16,185,129,0.12)", color: C.green, border: `1px solid rgba(16,185,129,0.3)`,
+  borderRadius: "8px", padding: "8px 14px", fontSize: "13px", fontWeight: 500,
+  cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
+};
+
+// ══════════════════════════════════════════════════════════════
+// MOCK DATA
+// ══════════════════════════════════════════════════════════════
+const currentUserData = {
+  userId: "u001", name: "Alex Chen", email: "alex.chen@university.edu",
+  department: "Computer Science", semester: 6,
+  bio: "Passionate about algorithms & distributed systems. Always up for study sessions! 🚀",
+  averageRating: 4.7, status: "active", role: "student",
+};
+const adminUserData = {
+  userId: "a001", name: "Dr. Sarah Mills", email: "admin@university.edu",
+  role: "admin", adminLevel: 2, status: "active",
+};
+const students = [
+  { userId: "u002", name: "Priya Sharma", department: "Computer Science", semester: 6, bio: "ML enthusiast, love competitive coding 🤖", averageRating: 4.9, status: "active", mutualCourses: ["CS401", "CS406"] },
+  { userId: "u003", name: "James O'Brien", department: "Mathematics", semester: 5, bio: "Math nerd, tutor for calculus & linear algebra", averageRating: 4.6, status: "active", mutualCourses: ["MATH301"] },
+  { userId: "u004", name: "Leila Mansour", department: "Computer Science", semester: 7, bio: "Backend dev, coffee addict ☕", averageRating: 4.8, status: "active", mutualCourses: ["CS401", "CS410"] },
+  { userId: "u005", name: "Daniel Park", department: "Physics", semester: 4, bio: "Quantum mechanics & computing enthusiast ⚛️", averageRating: 4.3, status: "active", mutualCourses: [] },
+  { userId: "u006", name: "Sofia Martinez", department: "Computer Science", semester: 6, bio: "Frontend dev & UI/UX designer 🎨", averageRating: 4.7, status: "active", mutualCourses: ["CS401"] },
+  { userId: "u007", name: "Marcus Johnson", department: "Electrical Engineering", semester: 5, bio: "IoT & embedded systems", averageRating: 4.2, status: "blocked", mutualCourses: [] },
+];
+const partnerRequests = [
+  { requestId: "pr001", fromUser: students[0], status: "pending", requestDate: "Mar 10, 2024" },
+  { requestId: "pr002", fromUser: students[2], status: "pending", requestDate: "Mar 9, 2024" },
+  { requestId: "pr003", fromUser: students[4], status: "accepted", requestDate: "Mar 5, 2024" },
+];
+const studyGroups = [
+  {
+    groupId: "sg001", groupName: "Algorithms Study Squad", description: "Weekly sessions on advanced algorithm design and analysis",
+    courseCode: "CS401", maxMembers: 8, visibility: "public", memberCount: 5,
+    members: [currentUserData, students[0], students[2], students[3], students[4]],
+    isCreator: true, joined: true,
+    announcements: [
+      { announcementId: "an1", content: "Next session: Saturday 3pm at Library Room 204. Topic: Dynamic Programming 📚", timestamp: "Mar 11, 2024", author: "Alex Chen" },
+      { announcementId: "an2", content: "Practice problems uploaded to shared drive. Please attempt before session!", timestamp: "Mar 9, 2024", author: "Alex Chen" },
+    ],
+  },
+  {
+    groupId: "sg002", groupName: "Data Structures Deep Dive", description: "Covering trees, graphs, and advanced data structures",
+    courseCode: "CS301", maxMembers: 6, visibility: "public", memberCount: 4,
+    members: [students[0], students[1], students[3]],
+    isCreator: false, joined: true,
+    announcements: [
+      { announcementId: "an3", content: "Red-Black Trees worksheet due before our next meetup", timestamp: "Mar 10, 2024", author: "Priya Sharma" },
+    ],
+  },
+  {
+    groupId: "sg003", groupName: "Linear Algebra Legends", description: "Tackling proofs and applications together — all levels welcome",
+    courseCode: "MATH202", maxMembers: 10, visibility: "public", memberCount: 7,
+    members: [], isCreator: false, joined: false, announcements: [],
+  },
+  {
+    groupId: "sg004", groupName: "Web Dev Workshop", description: "Full-stack development study and project collaboration",
+    courseCode: "CS410", maxMembers: 12, visibility: "private", memberCount: 9,
+    members: [], isCreator: false, joined: false, announcements: [],
+  },
+];
+const resources = [
+  { resourceId: "r001", title: "CLRS – Introduction to Algorithms (4th ed.)", category: "Book", condition: "Good", maxBorrowDuration: 14, status: "available", ownerId: "u001", ownerName: "Alex Chen", description: "Classic algorithms textbook. Covers everything from sorting to NP-completeness." },
+  { resourceId: "r002", title: "Scientific Calculator – Casio FX-991EX", category: "Equipment", condition: "Excellent", maxBorrowDuration: 3, status: "available", ownerId: "u001", ownerName: "Alex Chen", description: "Advanced scientific calculator, perfect for exams." },
+  { resourceId: "r003", title: "Laptop Stand + Wireless Mouse Combo", category: "Equipment", condition: "Good", maxBorrowDuration: 7, status: "borrowed", ownerId: "u002", ownerName: "Priya Sharma", description: "Adjustable portable stand + wireless mouse." },
+  { resourceId: "r004", title: "Operating Systems: Three Easy Pieces", category: "Book", condition: "Fair", maxBorrowDuration: 10, status: "available", ownerId: "u003", ownerName: "James O'Brien", description: "Great intro to OS concepts. Some highlights but very readable." },
+  { resourceId: "r005", title: "Wacom Drawing Tablet (Small)", category: "Equipment", condition: "Excellent", maxBorrowDuration: 5, status: "paused", ownerId: "u004", ownerName: "Leila Mansour", description: "For digital note-taking or design projects." },
+  { resourceId: "r006", title: "STAT201 Notes Bundle", category: "Notes", condition: "Good", maxBorrowDuration: 7, status: "available", ownerId: "u005", ownerName: "Daniel Park", description: "Comprehensive handwritten + typed notes from last semester." },
+];
+const borrowRequests = [
+  { requestId: "br001", resource: resources[0], requester: students[0], requestedDuration: 7, status: "pending", requestDate: "Mar 10, 2024" },
+  { requestId: "br002", resource: resources[1], requester: students[3], requestedDuration: 2, status: "pending", requestDate: "Mar 11, 2024" },
+  { requestId: "br003", resource: resources[0], requester: students[2], requestedDuration: 5, status: "approved", requestDate: "Mar 5, 2024" },
+];
+const lendingHistory = [
+  { transactionId: "lt001", resourceTitle: "Design Patterns (Gang of Four)", category: "Book", borrowerName: "James O'Brien", startDate: "Feb 20", returnDate: "Mar 1", status: "returned", rating: 5 },
+  { transactionId: "lt002", resourceTitle: "USB-C Hub 7-port", category: "Equipment", borrowerName: "Sofia Martinez", startDate: "Feb 10", returnDate: "Feb 17", status: "returned", rating: 4 },
+  { transactionId: "lt003", resourceTitle: "Algorithms CLRS", category: "Book", borrowerName: "Marcus Johnson", startDate: "Jan 15", returnDate: null, status: "overdue", rating: null },
+];
+const conversations = [
+  {
+    conversationId: "cv001", participant: students[0],
+    messages: [
+      { msgId: "m1", text: "Hey! Are we still on for study session Saturday?", time: "10:30 AM", mine: false },
+      { msgId: "m2", text: "Yes! Library Room 204 at 3pm. I'll bring the CLRS book.", time: "10:32 AM", mine: true },
+      { msgId: "m3", text: "Perfect! Can you also bring the calculator?", time: "10:33 AM", mine: false },
+      { msgId: "m4", text: "Sure thing! See you there 👍", time: "10:35 AM", mine: true },
+    ],
+    lastMsg: "Sure thing! See you there 👍", unread: 0, time: "10:35 AM",
+  },
+  {
+    conversationId: "cv002", participant: students[2],
+    messages: [
+      { msgId: "m5", text: "Hi! I approved your borrow request for the calculator.", time: "Yesterday", mine: true },
+      { msgId: "m6", text: "Great, thanks! Where should we meet for the handover?", time: "Yesterday", mine: false },
+    ],
+    lastMsg: "Where should we meet for the handover?", unread: 1, time: "Yesterday",
+  },
+  {
+    conversationId: "cv003", participant: students[4],
+    messages: [
+      { msgId: "m7", text: "Your group announcement about DP problems was super helpful!", time: "Mon", mine: false },
+    ],
+    lastMsg: "Your group announcement about DP problems was super helpful!", unread: 1, time: "Mon",
+  },
+];
+const notifications = [
+  { notifId: "n1", content: "Priya Sharma sent you a study partner request", type: "partner", isRead: false, time: "2 min ago" },
+  { notifId: "n2", content: "Your borrow request for 'Laptop Stand' was approved!", type: "borrow", isRead: false, time: "1 hr ago" },
+  { notifId: "n3", content: "New announcement in Algorithms Study Squad", type: "group", isRead: false, time: "3 hrs ago" },
+  { notifId: "n4", content: "James O'Brien returned your book. Please confirm!", type: "return", isRead: true, time: "Yesterday" },
+  { notifId: "n5", content: "New message from Leila Mansour", type: "message", isRead: true, time: "2 days ago" },
+  { notifId: "n6", content: "Reminder: Calculator loan to Daniel Park is due tomorrow", type: "reminder", isRead: true, time: "2 days ago" },
+];
+const lostFoundItems = [
+  { itemId: "lf1", type: "Lost", description: "Black HP laptop charger, left near Cafeteria seating area", location: "Cafeteria", dateReported: "Mar 11", status: "open", reporter: "Anonymous" },
+  { itemId: "lf2", type: "Found", description: "Student ID card – Name: R. Thompson, found outside Science Block B", location: "Science Block B", dateReported: "Mar 10", status: "open", reporter: "James O'Brien" },
+  { itemId: "lf3", type: "Lost", description: "Blue Hydroflask 32oz with stickers, last seen in Library 2nd floor", location: "Library 2F", dateReported: "Mar 9", status: "open", reporter: "Anonymous" },
+  { itemId: "lf4", type: "Found", description: "Apple AirPods Pro in white case, found in CS Lab", location: "CS Lab 201", dateReported: "Mar 8", status: "resolved", reporter: "Sofia Martinez" },
+  { itemId: "lf5", type: "Lost", description: "University Physics 15th edition, has name written on inside cover", location: "Physics Block", dateReported: "Mar 7", status: "open", reporter: "Anonymous" },
+];
+const adminUsers = [
+  { userId: "u101", name: "Emma Wilson", email: "e.wilson@uni.edu", dept: "CS", status: "active", joined: "Sep 2023", reports: 0 },
+  { userId: "u102", name: "Ryan Cooper", email: "r.cooper@uni.edu", dept: "Math", status: "active", joined: "Sep 2023", reports: 1 },
+  { userId: "u103", name: "Zara Ahmed", email: "z.ahmed@uni.edu", dept: "Physics", status: "blocked", joined: "Sep 2023", reports: 3 },
+  { userId: "u104", name: "Tom Bradley", email: "t.bradley@uni.edu", dept: "EE", status: "active", joined: "Oct 2023", reports: 0 },
+  { userId: "u105", name: "Nina Patel", email: "n.patel@uni.edu", dept: "CS", status: "active", joined: "Jan 2024", reports: 0 },
+];
+const adminFlaggedResources = [
+  { resourceId: "ar1", title: "Suspicious Item Listing", category: "Equipment", owner: "Ryan Cooper", status: "flagged", reason: "Inappropriate description", date: "Mar 10" },
+  { resourceId: "ar2", title: "Off-Campus Item (Policy Violation)", category: "Other", owner: "Zara Ahmed", status: "flagged", reason: "Off-campus item not permitted", date: "Mar 9" },
+  { resourceId: "ar3", title: "MATH301 Comprehensive Notes", category: "Notes", owner: "Emma Wilson", status: "active", reason: null, date: null },
+];
+const adminReports = [
+  { reportId: "rep1", type: "Resource", desc: "Inappropriate listing content", reported: "Ryan Cooper", by: "Multiple users", status: "pending", date: "Mar 10" },
+  { reportId: "rep2", type: "Loan Dispute", desc: "Item returned damaged without disclosure", reported: "Zara Ahmed", by: "Tom Bradley", status: "investigating", date: "Mar 9" },
+  { reportId: "rep3", type: "User", desc: "Harassment via messages", reported: "Unknown", by: "Nina Patel", status: "resolved", date: "Mar 5" },
+];
+
+// ══════════════════════════════════════════════════════════════
+// SHARED MICRO-COMPONENTS
+// ══════════════════════════════════════════════════════════════
+function Avatar({ name, size = 36, bg = C.cyanDk }) {
+  const initials = name ? name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "?";
+  const colors = [C.cyanDk, "#5B21B6", "#065F46", "#92400E", "#1E40AF", "#831843"];
+  const colorIndex = name ? name.charCodeAt(0) % colors.length : 0;
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: "50%",
+      background: colors[colorIndex],
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontWeight: 700, fontSize: size * 0.35, color: "#fff", flexShrink: 0,
+    }}>
+      {initials}
+    </div>
+  );
+}
+function Badge({ label, color = C.cyan, bg }) {
+  const bgCol = bg || `${color}22`;
+  return (
+    <span className="chip" style={{ background: bgCol, color }}>
+      {label}
+    </span>
+  );
+}
+function StatusBadge({ status }) {
+  const map = {
+    available: { color: C.green, label: "Available" },
+    borrowed:  { color: C.amber, label: "Borrowed" },
+    paused:    { color: C.txM,   label: "Paused" },
+    pending:   { color: C.amber, label: "Pending" },
+    approved:  { color: C.green, label: "Approved" },
+    rejected:  { color: C.red,   label: "Rejected" },
+    active:    { color: C.green, label: "Active" },
+    blocked:   { color: C.red,   label: "Blocked" },
+    overdue:   { color: C.red,   label: "Overdue" },
+    returned:  { color: C.green, label: "Returned" },
+    open:      { color: C.cyan,  label: "Open" },
+    resolved:  { color: C.green, label: "Resolved" },
+    flagged:   { color: C.red,   label: "Flagged" },
+    investigating: { color: C.amber, label: "Investigating" },
+    public:    { color: C.cyan,  label: "Public" },
+    private:   { color: C.purple, label: "Private" },
+  };
+  const info = map[status] || { color: C.txM, label: status };
+  return <Badge label={info.label} color={info.color} />;
+}
+function StarRating({ rating, size = 14 }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+      {[1,2,3,4,5].map(i => (
+        <Star key={i} size={size} fill={i <= Math.round(rating) ? C.amber : "none"} color={i <= Math.round(rating) ? C.amber : C.txM} />
+      ))}
+      <span style={{ color: C.txS, fontSize: 12, marginLeft: 4 }}>{rating.toFixed(1)}</span>
+    </div>
+  );
+}
+function SectionHeader({ title, subtitle, action }) {
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+      <div>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: C.tx, margin: 0 }}>{title}</h2>
+        {subtitle && <p style={{ color: C.txS, fontSize: 14, marginTop: 4 }}>{subtitle}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
+function Tabs({ tabs, active, onSelect }) {
+  return (
+    <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${C.border}`, marginBottom: 24 }}>
+      {tabs.map(t => (
+        <button key={t.id} className={`tabBtn${active === t.id ? " tabActive" : ""}`}
+          onClick={() => onSelect(t.id)}
+          style={{ background: "none", border: "none", borderBottom: active === t.id ? `2px solid ${C.cyan}` : "2px solid transparent",
+            color: active === t.id ? C.cyanLt : C.txS, padding: "10px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer", marginBottom: -1 }}>
+          {t.icon && <span style={{ marginRight: 6 }}>{t.icon}</span>}
+          {t.label}
+          {t.count !== undefined && (
+            <span style={{ marginLeft: 8, background: active === t.id ? C.cyan : C.border, borderRadius: 20, padding: "1px 7px", fontSize: 11, color: active === t.id ? "#fff" : C.txS }}>
+              {t.count}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+function StatCard({ label, value, icon: Icon, color = C.cyan, sub }) {
+  return (
+    <div style={{ ...cardStyle(), flex: 1, minWidth: 160 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <p style={{ color: C.txS, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, margin: 0 }}>{label}</p>
+          <p style={{ fontSize: 32, fontWeight: 800, color: C.tx, margin: "6px 0 0" }}>{value}</p>
+          {sub && <p style={{ fontSize: 12, color: C.txM, margin: "4px 0 0" }}>{sub}</p>}
+        </div>
+        <div style={{ width: 44, height: 44, borderRadius: 12, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon size={22} color={color} />
+        </div>
+      </div>
+    </div>
+  );
+}
+function Modal({ title, onClose, children, width = 500 }) {
+  return (
+    <div className="overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: width }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" }}>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: C.tx }}>{title}</h3>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: C.txS, cursor: "pointer", padding: 4 }}><X size={18} /></button>
+        </div>
+        <div style={{ padding: "16px 24px 24px" }}>{children}</div>
+      </div>
+    </div>
+  );
+}
+function FormField({ label, children }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: C.txS, marginBottom: 6 }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+function EmptyState({ icon: Icon, title, subtitle, action }) {
+  return (
+    <div style={{ textAlign: "center", padding: "60px 20px", color: C.txM }}>
+      <Icon size={48} style={{ opacity: 0.3, marginBottom: 16 }} />
+      <p style={{ fontSize: 18, fontWeight: 700, color: C.txS, margin: 0 }}>{title}</p>
+      {subtitle && <p style={{ fontSize: 14, margin: "8px 0 20px" }}>{subtitle}</p>}
+      {action}
+    </div>
+  );
+}
+function cardStyle(extra = {}) {
+  return { background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, ...extra };
+}
+function StudentCard({ student, actionEl }) {
+  return (
+    <div className="cardHover" style={{ ...cardStyle(), display: "flex", gap: 14, alignItems: "flex-start" }}>
+      <Avatar name={student.name} size={44} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: 15, color: C.tx, margin: 0 }}>{student.name}</p>
+            <p style={{ fontSize: 12, color: C.txS, margin: "2px 0 0" }}>{student.department} · Sem {student.semester}</p>
+          </div>
+          <StarRating rating={student.averageRating} />
+        </div>
+        <p style={{ fontSize: 13, color: C.txM, margin: "6px 0 10px", lineHeight: 1.5 }}>{student.bio}</p>
+        {student.mutualCourses?.length > 0 && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+            {student.mutualCourses.map(c => <Badge key={c} label={c} color={C.purple} />)}
+          </div>
+        )}
+        {actionEl}
+      </div>
+    </div>
+  );
+}
+function ResourceCard({ resource, actionEl }) {
+  const catColor = { Book: C.cyan, Equipment: C.amber, Notes: C.green }[resource.category] || C.txS;
+  return (
+    <div className="cardHover" style={cardStyle()}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontWeight: 700, fontSize: 14, color: C.tx, margin: 0 }}>{resource.title}</p>
+          <p style={{ fontSize: 12, color: C.txS, margin: "4px 0" }}>by {resource.ownerName}</p>
+        </div>
+        <StatusBadge status={resource.status} />
+      </div>
+      <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+        <Badge label={resource.category} color={catColor} />
+        <Badge label={`Condition: ${resource.condition}`} color={C.txS} />
+        <Badge label={`Max ${resource.maxBorrowDuration}d`} color={C.txM} />
+      </div>
+      <p style={{ fontSize: 13, color: C.txM, margin: "0 0 12px", lineHeight: 1.5 }}>{resource.description}</p>
+      {actionEl}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: AUTHENTICATION (UC 1–3, 5)
+// ══════════════════════════════════════════════════════════════
+function LoginPage({ onLogin, onNavigate }) {
+  const [email, setEmail] = useState("alex.chen@university.edu");
+  const [password, setPassword] = useState("password123");
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const handleLogin = (role) => {
+    setLoading(true);
+    setTimeout(() => { setLoading(false); onLogin(role); }, 800);
+  };
+  return (
+    <div style={{ height: "100vh", background: C.base, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 40%, rgba(14,165,233,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 70%, rgba(139,92,246,0.05) 0%, transparent 50%)" }} />
+      <div style={{ width: "100%", maxWidth: 420, position: "relative" }}>
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg,${C.cyan},${C.purple})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <BookOpen size={24} color="#fff" />
+            </div>
+            <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, background: `linear-gradient(135deg,${C.cyanLt},${C.purple})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              UniConnect
+            </h1>
+          </div>
+          <p style={{ color: C.txM, fontSize: 14, margin: 0 }}>Your campus collaboration platform</p>
+        </div>
+        <div className="authCard" style={{ padding: 32 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: C.tx, marginTop: 0, marginBottom: 4 }}>Welcome back</h2>
+          <p style={{ color: C.txM, fontSize: 13, marginBottom: 24 }}>Sign in with your university email</p>
+          <FormField label="University Email">
+            <div style={{ position: "relative" }}>
+              <Mail size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+              <input style={{ ...inp, paddingLeft: 36 }} value={email} onChange={e => setEmail(e.target.value)} placeholder="you@university.edu" />
+            </div>
+          </FormField>
+          <FormField label="Password">
+            <div style={{ position: "relative" }}>
+              <Lock size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+              <input type={showPw ? "text" : "password"} style={{ ...inp, paddingLeft: 36, paddingRight: 40 }} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+              <button onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: C.txM, cursor: "pointer" }}>
+                <Eye size={16} />
+              </button>
+            </div>
+          </FormField>
+          <button onClick={() => onNavigate("resetPassword")} style={{ background: "none", border: "none", color: C.cyan, fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 20 }}>
+            Forgot password?
+          </button>
+          <button onClick={() => handleLogin("student")} style={{ ...btnP, width: "100%", justifyContent: "center", marginBottom: 12, opacity: loading ? 0.7 : 1 }} disabled={loading}>
+            {loading ? <RefreshCw size={16} className="spin" /> : <><Check size={16} /> Sign In</>}
+          </button>
+          <button onClick={() => handleLogin("admin")} style={{ ...btnS, width: "100%", justifyContent: "center", fontSize: 13 }}>
+            <Shield size={14} /> Sign in as Admin (demo)
+          </button>
+          <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 24, paddingTop: 20, textAlign: "center" }}>
+            <span style={{ color: C.txM, fontSize: 13 }}>Don't have an account? </span>
+            <button onClick={() => onNavigate("register")} style={{ background: "none", border: "none", color: C.cyan, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Register here</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// UC 1 – Register Account
+function RegisterPage({ onNavigate }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ name: "", email: "", dept: "Computer Science", semester: "6", password: "" });
+  const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const depts = ["Computer Science", "Mathematics", "Physics", "Electrical Engineering", "Mechanical Engineering", "Chemistry", "Economics"];
+  return (
+    <div style={{ height: "100vh", background: C.base, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, overflowY: "auto" }}>
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 70% 30%, rgba(139,92,246,0.06) 0%, transparent 60%)" }} />
+      <div style={{ width: "100%", maxWidth: 460, position: "relative" }}>
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${C.cyan},${C.purple})`, display: "flex", alignItems: "center", justifyContent: "center" }}><BookOpen size={18} color="#fff" /></div>
+            <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, background: `linear-gradient(135deg,${C.cyanLt},${C.purple})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>UniConnect</h1>
+          </div>
+        </div>
+        <div className="authCard" style={{ padding: 32 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 28 }}>
+            {[1, 2].map(s => (
+              <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: step >= s ? C.cyan : C.border, transition: "background 0.3s" }} />
+            ))}
+          </div>
+          {step === 1 ? (
+            <>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: C.tx, marginTop: 0, marginBottom: 4 }}>Create account</h2>
+              <p style={{ color: C.txM, fontSize: 13, marginBottom: 24 }}>Step 1 of 2 – Personal info</p>
+              <FormField label="Full Name">
+                <div style={{ position: "relative" }}>
+                  <User size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+                  <input style={{ ...inp, paddingLeft: 34 }} value={form.name} onChange={e => upd("name", e.target.value)} placeholder="Your full name" />
+                </div>
+              </FormField>
+              <FormField label="University Email">
+                <div style={{ position: "relative" }}>
+                  <Mail size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+                  <input style={{ ...inp, paddingLeft: 34 }} value={form.email} onChange={e => upd("email", e.target.value)} placeholder="yourname@university.edu" />
+                </div>
+              </FormField>
+              <FormField label="Password">
+                <div style={{ position: "relative" }}>
+                  <Lock size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+                  <input type="password" style={{ ...inp, paddingLeft: 34 }} value={form.password} onChange={e => upd("password", e.target.value)} placeholder="Min 8 characters" />
+                </div>
+              </FormField>
+              <button onClick={() => setStep(2)} style={{ ...btnP, width: "100%", justifyContent: "center" }}>Continue <ChevronRight size={16} /></button>
+            </>
+          ) : (
+            <>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: C.tx, marginTop: 0, marginBottom: 4 }}>Academic details</h2>
+              <p style={{ color: C.txM, fontSize: 13, marginBottom: 24 }}>Step 2 of 2 – Verify your student status</p>
+              <FormField label="Department">
+                <div style={{ position: "relative" }}>
+                  <Building size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+                  <select style={{ ...inp, paddingLeft: 34, appearance: "none" }} value={form.dept} onChange={e => upd("dept", e.target.value)}>
+                    {depts.map(d => <option key={d}>{d}</option>)}
+                  </select>
+                </div>
+              </FormField>
+              <FormField label="Current Semester">
+                <div style={{ position: "relative" }}>
+                  <GraduationCap size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+                  <select style={{ ...inp, paddingLeft: 34, appearance: "none" }} value={form.semester} onChange={e => upd("semester", e.target.value)}>
+                    {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Semester {s}</option>)}
+                  </select>
+                </div>
+              </FormField>
+              <FormField label="Student ID">
+                <div style={{ position: "relative" }}>
+                  <Hash size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+                  <input style={{ ...inp, paddingLeft: 34 }} placeholder="e.g. STU20230042" />
+                </div>
+              </FormField>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={() => setStep(1)} style={{ ...btnS, flex: 1, justifyContent: "center" }}><ArrowLeft size={15} /> Back</button>
+                <button onClick={() => onNavigate("verifyStudent")} style={{ ...btnP, flex: 1, justifyContent: "center" }}>Register <CheckCircle size={15} /></button>
+              </div>
+            </>
+          )}
+          <div style={{ textAlign: "center", marginTop: 20 }}>
+            <span style={{ color: C.txM, fontSize: 13 }}>Already have an account? </span>
+            <button onClick={() => onNavigate("login")} style={{ background: "none", border: "none", color: C.cyan, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Sign in</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// UC 2 – Verify Student Status
+function VerifyStudentPage({ onNavigate }) {
+  const [code, setCode] = useState("");
+  return (
+    <div style={{ height: "100vh", background: C.base, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ width: "100%", maxWidth: 400, position: "relative" }}>
+        <div className="authCard" style={{ padding: 36, textAlign: "center" }}>
+          <div style={{ width: 64, height: 64, borderRadius: 20, background: `${C.cyan}18`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+            <Mail size={28} color={C.cyan} />
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: C.tx, margin: "0 0 8px" }}>Verify your email</h2>
+          <p style={{ color: C.txM, fontSize: 14, marginBottom: 28, lineHeight: 1.6 }}>
+            We've sent a 6-digit code to <strong style={{ color: C.txS }}>your@university.edu</strong>. Enter it below to verify your student status.
+          </p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 24 }}>
+            {[0,1,2,3,4,5].map(i => (
+              <input key={i} maxLength={1} style={{ width: 44, height: 52, textAlign: "center", fontSize: 22, fontWeight: 700, background: C.depth, border: `1px solid ${C.borderLight}`, borderRadius: 10, color: C.tx }} />
+            ))}
+          </div>
+          <button onClick={() => onNavigate("login")} style={{ ...btnP, width: "100%", justifyContent: "center", marginBottom: 12 }}>
+            <CheckCircle size={16} /> Verify & Continue
+          </button>
+          <button style={{ background: "none", border: "none", color: C.txS, fontSize: 13, cursor: "pointer" }}>
+            Didn't receive it? Resend code
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// UC 5 – Reset Password
+function ResetPasswordPage({ onNavigate }) {
+  const [sent, setSent] = useState(false);
+  return (
+    <div style={{ height: "100vh", background: C.base, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ width: "100%", maxWidth: 400 }}>
+        <div className="authCard" style={{ padding: 36 }}>
+          <div style={{ width: 52, height: 52, borderRadius: 16, background: `${C.amber}18`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+            <KeyRound size={24} color={C.amber} />
+          </div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: C.tx, margin: "0 0 8px" }}>{sent ? "Check your email" : "Reset password"}</h2>
+          {!sent ? (
+            <>
+              <p style={{ color: C.txM, fontSize: 13, marginBottom: 24 }}>Enter your university email and we'll send a reset link.</p>
+              <FormField label="University Email">
+                <input style={inp} placeholder="you@university.edu" />
+              </FormField>
+              <button onClick={() => setSent(true)} style={{ ...btnP, width: "100%", justifyContent: "center" }}>
+                Send Reset Link
+              </button>
+            </>
+          ) : (
+            <>
+              <p style={{ color: C.txM, fontSize: 13, marginBottom: 24, lineHeight: 1.6 }}>We've sent a password reset link to your email. Check your inbox and follow the instructions.</p>
+              <button onClick={() => onNavigate("login")} style={{ ...btnP, width: "100%", justifyContent: "center" }}>Back to Sign In</button>
+            </>
+          )}
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <button onClick={() => onNavigate("login")} style={{ background: "none", border: "none", color: C.txS, fontSize: 13, cursor: "pointer" }}>
+              ← Back to login
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: LAYOUT (Sidebar + TopBar + Shell)
+// ══════════════════════════════════════════════════════════════
+const navGroups = [
+  {
+    label: "Main",
+    items: [
+      { id: "dashboard", label: "Dashboard", icon: Home },
+    ],
+  },
+  {
+    label: "Collaborate",
+    items: [
+      { id: "studyPartners", label: "Study Partners", icon: Users },
+      { id: "studyGroups", label: "Study Groups", icon: Layers },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { id: "resources", label: "Resources", icon: Package },
+    ],
+  },
+  {
+    label: "Connect",
+    items: [
+      { id: "messages", label: "Messages", icon: MessageSquare, badge: 2 },
+      { id: "notifications", label: "Notifications", icon: Bell, badge: 3 },
+      { id: "lostFound", label: "Lost & Found", icon: MapPin },
+    ],
+  },
+];
+const adminNavGroups = [
+  {
+    label: "Admin Panel",
+    items: [
+      { id: "adminDashboard", label: "Dashboard", icon: BarChart2 },
+      { id: "adminUsers", label: "Manage Users", icon: UserCheck },
+      { id: "adminResources", label: "Resource Listings", icon: Package },
+      { id: "adminReports", label: "Platform Reports", icon: Flag },
+    ],
+  },
+];
+
+function Sidebar({ currentPage, onNavigate, user, isAdmin }) {
+  const groups = isAdmin ? adminNavGroups : navGroups;
+  return (
+    <div style={{ width: 224, background: C.depth, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", height: "100%", flexShrink: 0 }}>
+      <div style={{ padding: "20px 18px 16px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 9, background: `linear-gradient(135deg,${C.cyan},${C.purple})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <BookOpen size={16} color="#fff" />
+          </div>
+          <span style={{ fontWeight: 900, fontSize: 17, background: `linear-gradient(135deg,${C.cyanLt},${C.purple})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>UniConnect</span>
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "12px 10px" }}>
+        {groups.map(group => (
+          <div key={group.label} style={{ marginBottom: 20 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: C.txM, textTransform: "uppercase", letterSpacing: 1.2, padding: "0 8px", marginBottom: 6 }}>{group.label}</p>
+            {group.items.map(item => {
+              const Icon = item.icon;
+              const active = currentPage === item.id;
+              return (
+                <button key={item.id} className={`sideNavItem${active ? " sideNavActive" : ""}`}
+                  onClick={() => onNavigate(item.id)}
+                  style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: active ? "rgba(14,165,233,0.1)" : "none", border: active ? `none` : "none", borderRight: active ? `2px solid ${C.cyan}` : "2px solid transparent", borderRadius: active ? "8px 0 0 8px" : 8, padding: "9px 10px", color: active ? C.cyanLt : C.txS, cursor: "pointer", fontSize: 13, fontWeight: active ? 700 : 500, textAlign: "left" }}>
+                  <Icon size={16} />
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  {item.badge && <span style={{ background: C.red, borderRadius: 20, padding: "1px 6px", fontSize: 10, fontWeight: 700, color: "#fff" }}>{item.badge}</span>}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: "12px 10px", borderTop: `1px solid ${C.border}` }}>
+        {!isAdmin && (
+          <button className="sideNavItem" onClick={() => onNavigate("profile")}
+            style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: currentPage === "profile" ? "rgba(14,165,233,0.1)" : "none", border: "none", borderRadius: 8, padding: "9px 10px", color: C.txS, cursor: "pointer", fontSize: 13, fontWeight: 500, textAlign: "left", marginBottom: 4 }}>
+            <User size={16} /> Profile
+          </button>
+        )}
+        <button className="sideNavItem" onClick={() => onNavigate("login")}
+          style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: "none", border: "none", borderRadius: 8, padding: "9px 10px", color: C.red, cursor: "pointer", fontSize: 13, fontWeight: 500, textAlign: "left", opacity: 0.8 }}>
+          <LogOut size={16} /> Sign Out
+        </button>
+      </div>
+    </div>
+  );
+}
+function TopBar({ user, currentPage, onNavigate }) {
+  const pageLabels = {
+    dashboard: "Dashboard", studyPartners: "Study Partners", studyGroups: "Study Groups",
+    resources: "Resources", messages: "Messages", notifications: "Notifications",
+    lostFound: "Lost & Found", profile: "Profile", adminDashboard: "Admin Dashboard",
+    adminUsers: "Manage Users", adminResources: "Resource Listings", adminReports: "Platform Reports",
+  };
+  return (
+    <div style={{ height: 58, background: C.depth, borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", flexShrink: 0 }}>
+      <h2 style={{ fontSize: 16, fontWeight: 700, color: C.tx, margin: 0 }}>{pageLabels[currentPage] || "UniConnect"}</h2>
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <button onClick={() => onNavigate("notifications")} style={{ background: "none", border: "none", color: C.txS, cursor: "pointer", position: "relative", padding: 4 }}>
+          <Bell size={20} />
+          <span style={{ position: "absolute", top: 0, right: 0, width: 8, height: 8, borderRadius: "50%", background: C.red }} />
+        </button>
+        <button onClick={() => onNavigate("messages")} style={{ background: "none", border: "none", color: C.txS, cursor: "pointer", position: "relative", padding: 4 }}>
+          <MessageSquare size={20} />
+          <span style={{ position: "absolute", top: 0, right: 0, width: 8, height: 8, borderRadius: "50%", background: C.cyan }} />
+        </button>
+        <button onClick={() => onNavigate("profile")} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: 8 }}>
+          <Avatar name={user.name} size={30} />
+          <div style={{ textAlign: "left" }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: C.tx, margin: 0 }}>{user.name}</p>
+            <p style={{ fontSize: 10, color: C.txM, margin: 0 }}>{user.department || user.role}</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+function AppShell({ user, currentPage, onNavigate, isAdmin, children }) {
+  return (
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      <Sidebar currentPage={currentPage} onNavigate={onNavigate} user={user} isAdmin={isAdmin} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <TopBar user={user} currentPage={currentPage} onNavigate={onNavigate} />
+        <div style={{ flex: 1, overflowY: "auto", background: C.base }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: DASHBOARD
+// ══════════════════════════════════════════════════════════════
+function DashboardPage({ onNavigate }) {
+  const recentActivity = [
+    { icon: UserPlus, text: "Priya Sharma sent you a partner request", time: "2 min ago", color: C.cyan },
+    { icon: CheckCircle, text: "Borrow request for 'Laptop Stand' approved", time: "1 hr ago", color: C.green },
+    { icon: Volume2, text: "New announcement in Algorithms Study Squad", time: "3 hrs ago", color: C.purple },
+    { icon: RefreshCw, text: "James O'Brien returned your book", time: "Yesterday", color: C.amber },
+  ];
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, color: C.tx, margin: 0 }}>
+          Good afternoon, <span style={{ color: C.cyanLt }}>Alex</span> 👋
+        </h1>
+        <p style={{ color: C.txM, fontSize: 14, marginTop: 6 }}>Here's what's happening on campus today.</p>
+      </div>
+      <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
+        <StatCard label="Study Partners" value={3} icon={Users} color={C.cyan} sub="2 pending requests" />
+        <StatCard label="Active Groups" value={2} icon={Layers} color={C.purple} sub="1 new announcement" />
+        <StatCard label="My Resources" value={2} icon={Package} color={C.amber} sub="0 active requests" />
+        <StatCard label="Active Loans" value={1} icon={BookOpen} color={C.green} sub="Due in 3 days" />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div style={cardStyle()}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: 0 }}>Recent Activity</h3>
+            <Badge label="4 new" color={C.red} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {recentActivity.map((a, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: `${a.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <a.icon size={16} color={a.color} />
+                </div>
+                <div>
+                  <p style={{ fontSize: 13, color: C.tx, margin: 0, lineHeight: 1.4 }}>{a.text}</p>
+                  <p style={{ fontSize: 11, color: C.txM, margin: "3px 0 0" }}>{a.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={cardStyle()}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: "0 0 14px" }}>Quick Actions</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { label: "Search Study Partners", icon: Users, page: "studyPartners", color: C.cyan },
+                { label: "Browse Resources", icon: Package, page: "resources", color: C.amber },
+                { label: "View Messages", icon: MessageSquare, page: "messages", color: C.green },
+                { label: "Report Lost Item", icon: MapPin, page: "lostFound", color: C.purple },
+              ].map(a => (
+                <button key={a.page} onClick={() => onNavigate(a.page)}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.txS, cursor: "pointer", fontSize: 13, fontWeight: 500, transition: "all 0.15s" }}>
+                  <a.icon size={16} color={a.color} />
+                  <span style={{ flex: 1, textAlign: "left" }}>{a.label}</span>
+                  <ChevronRight size={14} color={C.txM} />
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={cardStyle()}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: "0 0 12px" }}>Active Loan</h3>
+            <div style={{ background: C.surface, borderRadius: 10, padding: 14, border: `1px solid ${C.border}` }}>
+              <p style={{ fontWeight: 600, fontSize: 13, color: C.tx, margin: "0 0 4px" }}>Laptop Stand + Mouse Combo</p>
+              <p style={{ fontSize: 12, color: C.txM, margin: "0 0 8px" }}>from Priya Sharma</p>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Badge label="Due Mar 15" color={C.amber} />
+                <button onClick={() => onNavigate("resources")} style={{ ...btnS, padding: "5px 12px", fontSize: 12 }}>View</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: PROFILE (UC 4, 6)
+// ══════════════════════════════════════════════════════════════
+function ProfilePage({ user, onNavigate }) {
+  const [tab, setTab] = useState("view");
+  const [editForm, setEditForm] = useState({ name: user.name, bio: user.bio, dept: user.department, semester: String(user.semester) });
+  const [privacySettings, setPrivacySettings] = useState({ showEmail: false, showDept: true, showSemester: true, showRating: true, allowPartnerRequests: true, profileVisibility: "public" });
+  const upd = (k, v) => setEditForm(f => ({ ...f, [k]: v }));
+  const togglePrivacy = (k) => setPrivacySettings(p => ({ ...p, [k]: !p[k] }));
+  const depts = ["Computer Science", "Mathematics", "Physics", "Electrical Engineering", "Mechanical Engineering", "Chemistry", "Economics"];
+  const tabs = [
+    { id: "view", label: "My Profile" },
+    { id: "edit", label: "Edit Profile" },
+    { id: "privacy", label: "Privacy Settings" },
+  ];
+  return (
+    <div className="pageAnim" style={{ padding: 28, maxWidth: 720, margin: "0 auto" }}>
+      <Tabs tabs={tabs} active={tab} onSelect={setTab} />
+      {tab === "view" && (
+        <div>
+          <div style={{ ...cardStyle(), display: "flex", gap: 24, alignItems: "flex-start", marginBottom: 20 }}>
+            <div style={{ position: "relative" }}>
+              <Avatar name={user.name} size={72} />
+              <div className="pulse" style={{ width: 12, height: 12, borderRadius: "50%", background: C.green, position: "absolute", bottom: 2, right: 2, border: `2px solid ${C.card}` }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: C.tx, margin: 0 }}>{user.name}</h2>
+              <p style={{ color: C.txS, fontSize: 14, margin: "4px 0 8px" }}>{user.department} · Semester {user.semester}</p>
+              <StarRating rating={user.averageRating} />
+              <p style={{ fontSize: 14, color: C.txM, margin: "12px 0 0", lineHeight: 1.6 }}>{user.bio}</p>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+            {[
+              { label: "Study Partners", value: "3", icon: Users, color: C.cyan },
+              { label: "Study Groups", value: "2", icon: Layers, color: C.purple },
+              { label: "Resources Listed", value: "2", icon: Package, color: C.amber },
+            ].map(s => (
+              <div key={s.label} style={{ ...cardStyle({ textAlign: "center", padding: 16 }) }}>
+                <s.icon size={22} color={s.color} style={{ marginBottom: 8 }} />
+                <p style={{ fontSize: 26, fontWeight: 800, color: C.tx, margin: 0 }}>{s.value}</p>
+                <p style={{ fontSize: 12, color: C.txM, margin: "4px 0 0" }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {tab === "edit" && (
+        <div style={cardStyle()}>
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: C.tx, margin: "0 0 20px" }}>Edit Profile</h3>
+          <FormField label="Display Name">
+            <input style={inp} value={editForm.name} onChange={e => upd("name", e.target.value)} />
+          </FormField>
+          <FormField label="Bio">
+            <textarea style={{ ...inp, height: 90, resize: "vertical", lineHeight: 1.5 }} value={editForm.bio} onChange={e => upd("bio", e.target.value)} />
+          </FormField>
+          <FormField label="Department">
+            <select style={{ ...inp, appearance: "none" }} value={editForm.dept} onChange={e => upd("dept", e.target.value)}>
+              {depts.map(d => <option key={d}>{d}</option>)}
+            </select>
+          </FormField>
+          <FormField label="Current Semester">
+            <select style={{ ...inp, appearance: "none" }} value={editForm.semester} onChange={e => upd("semester", e.target.value)}>
+              {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Semester {s}</option>)}
+            </select>
+          </FormField>
+          <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+            <button style={{ ...btnP }}><Check size={15} /> Save Changes</button>
+            <button style={{ ...btnS }} onClick={() => setTab("view")}><X size={15} /> Cancel</button>
+          </div>
+        </div>
+      )}
+      {tab === "privacy" && (
+        <div style={cardStyle()}>
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: C.tx, margin: "0 0 6px" }}>Privacy Settings</h3>
+          <p style={{ color: C.txM, fontSize: 13, marginBottom: 24 }}>Control what other students can see on your profile.</p>
+          {[
+            { key: "showEmail", label: "Show email address", desc: "Allow others to see your university email" },
+            { key: "showDept", label: "Show department", desc: "Display your department on your profile" },
+            { key: "showSemester", label: "Show semester", desc: "Display your current semester" },
+            { key: "showRating", label: "Show rating", desc: "Allow others to see your average rating" },
+            { key: "allowPartnerRequests", label: "Allow partner requests", desc: "Let other students send you study partner requests" },
+          ].map(s => (
+            <div key={s.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: `1px solid ${C.border}` }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: C.tx, margin: 0 }}>{s.label}</p>
+                <p style={{ fontSize: 12, color: C.txM, margin: "3px 0 0" }}>{s.desc}</p>
+              </div>
+              <button onClick={() => togglePrivacy(s.key)} style={{ background: "none", border: "none", cursor: "pointer", color: privacySettings[s.key] ? C.cyan : C.txM }}>
+                {privacySettings[s.key] ? <ToggleRight size={28} /> : <ToggleLeft size={28} />}
+              </button>
+            </div>
+          ))}
+          <div style={{ marginTop: 20 }}>
+            <FormField label="Profile Visibility">
+              <select style={{ ...inp, appearance: "none", maxWidth: 200 }} value={privacySettings.profileVisibility} onChange={e => setPrivacySettings(p => ({ ...p, profileVisibility: e.target.value }))}>
+                <option value="public">Public – Visible to all students</option>
+                <option value="partners">Partners Only</option>
+                <option value="private">Private – Hidden</option>
+              </select>
+            </FormField>
+            <button style={{ ...btnP, marginTop: 4 }}><Check size={15} /> Save Privacy Settings</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: STUDY PARTNERS (UC 7–9)
+// ══════════════════════════════════════════════════════════════
+function StudyPartnersPage() {
+  const [tab, setTab] = useState("search");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [deptFilter, setDeptFilter] = useState("All");
+  const [requests, setRequests] = useState(partnerRequests);
+  const depts = ["All", "Computer Science", "Mathematics", "Physics", "Electrical Engineering"];
+  const filtered = students.filter(s =>
+    (deptFilter === "All" || s.department === deptFilter) &&
+    (searchQuery === "" || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.department.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+  const handleRequestAction = (id, action) => {
+    setRequests(r => r.map(req => req.requestId === id ? { ...req, status: action } : req));
+  };
+  const tabs = [
+    { id: "search", label: "Search Partners" },
+    { id: "requests", label: "Partner Requests", count: requests.filter(r => r.status === "pending").length },
+    { id: "partners", label: "My Partners", count: requests.filter(r => r.status === "accepted").length },
+  ];
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      <SectionHeader title="Study Partners" subtitle="Find and connect with students who share your courses" />
+      <Tabs tabs={tabs} active={tab} onSelect={setTab} />
+      {tab === "search" && (
+        <div>
+          <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+            <div style={{ position: "relative", flex: 1 }}>
+              <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+              <input style={{ ...inp, paddingLeft: 36 }} placeholder="Search by name, department, or course…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+            </div>
+            <select style={{ ...inp, width: 180, appearance: "none" }} value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
+              {depts.map(d => <option key={d}>{d}</option>)}
+            </select>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {filtered.map(student => (
+              <StudentCard key={student.userId} student={student} actionEl={
+                student.status === "blocked"
+                  ? <Badge label="Account Blocked" color={C.red} />
+                  : <div style={{ display: "flex", gap: 8 }}>
+                      <button style={{ ...btnP, padding: "7px 14px", fontSize: 12 }}><UserPlus size={14} /> Send Request</button>
+                      <button style={{ ...btnS, padding: "7px 12px", fontSize: 12 }}><MessageSquare size={14} /> Message</button>
+                    </div>
+              } />
+            ))}
+          </div>
+        </div>
+      )}
+      {tab === "requests" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {requests.filter(r => r.status === "pending").length === 0
+            ? <EmptyState icon={Users} title="No pending requests" subtitle="Partner requests will appear here" />
+            : requests.filter(r => r.status === "pending").map(req => (
+                <div key={req.requestId} style={{ ...cardStyle(), display: "flex", alignItems: "center", gap: 16 }}>
+                  <Avatar name={req.fromUser.name} size={46} />
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontWeight: 700, color: C.tx, margin: 0 }}>{req.fromUser.name}</p>
+                    <p style={{ fontSize: 12, color: C.txS, margin: "2px 0 6px" }}>{req.fromUser.department} · Sem {req.fromUser.semester}</p>
+                    <p style={{ fontSize: 12, color: C.txM, margin: 0 }}>Requested on {req.requestDate}</p>
+                  </div>
+                  <StarRating rating={req.fromUser.averageRating} />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => handleRequestAction(req.requestId, "accepted")} style={btnG}><Check size={14} /> Accept</button>
+                    <button onClick={() => handleRequestAction(req.requestId, "rejected")} style={btnD}><X size={14} /> Decline</button>
+                  </div>
+                </div>
+              ))
+          }
+        </div>
+      )}
+      {tab === "partners" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {requests.filter(r => r.status === "accepted").map(req => (
+            <StudentCard key={req.requestId} student={req.fromUser} actionEl={
+              <div style={{ display: "flex", gap: 8 }}>
+                <button style={{ ...btnP, padding: "7px 14px", fontSize: 12 }}><MessageSquare size={14} /> Message</button>
+                <button style={{ ...btnD, padding: "7px 12px", fontSize: 12 }}><UserMinus size={14} /></button>
+              </div>
+            } />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: STUDY GROUPS (UC 10–14)
+// ══════════════════════════════════════════════════════════════
+function StudyGroupsPage() {
+  const [tab, setTab] = useState("myGroups");
+  const [groups, setGroups] = useState(studyGroups);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [newGroup, setNewGroup] = useState({ name: "", desc: "", course: "", max: "8", visibility: "public" });
+  const [newAnnouncement, setNewAnnouncement] = useState("");
+  const myGroups = groups.filter(g => g.joined);
+  const discoverGroups = groups.filter(g => !g.joined);
+  const tabs = [
+    { id: "myGroups", label: "My Groups", count: myGroups.length },
+    { id: "discover", label: "Discover", count: discoverGroups.length },
+    { id: "create", label: "Create Group" },
+  ];
+  const handleJoin = (id) => setGroups(g => g.map(gr => gr.groupId === id ? { ...gr, joined: true, memberCount: gr.memberCount + 1 } : gr));
+  const handleLeave = (id) => setGroups(g => g.map(gr => gr.groupId === id ? { ...gr, joined: false, memberCount: gr.memberCount - 1, isCreator: false } : gr));
+  if (selectedGroup) {
+    const grp = groups.find(g => g.groupId === selectedGroup);
+    return (
+      <div className="pageAnim" style={{ padding: 28, maxWidth: 800, margin: "0 auto" }}>
+        <button onClick={() => setSelectedGroup(null)} style={{ ...btnS, marginBottom: 20, padding: "8px 16px", fontSize: 13 }}><ArrowLeft size={15} /> Back to Groups</button>
+        <div style={{ ...cardStyle(), marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+            <div>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: C.tx, margin: 0 }}>{grp.groupName}</h2>
+              <p style={{ color: C.txS, fontSize: 13, margin: "6px 0 0" }}>{grp.description}</p>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <StatusBadge status={grp.visibility} />
+              {grp.isCreator && <Badge label="Creator" color={C.amber} />}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <Badge label={grp.courseCode} color={C.cyan} />
+            <Badge label={`${grp.memberCount}/${grp.maxMembers} members`} color={C.txS} />
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <div style={cardStyle()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: 0 }}>Members ({grp.members.length})</h3>
+              {grp.isCreator && <button style={{ ...btnS, padding: "5px 10px", fontSize: 11 }}><UserPlus size={13} /> Invite</button>}
+            </div>
+            {grp.members.map(m => (
+              <div key={m.userId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+                <Avatar name={m.name} size={32} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: C.tx, margin: 0 }}>{m.name}</p>
+                  <p style={{ fontSize: 11, color: C.txM, margin: 0 }}>{m.department}</p>
+                </div>
+                {m.userId === currentUserData.userId && <Badge label="You" color={C.cyan} />}
+                {grp.isCreator && m.userId !== currentUserData.userId && (
+                  <button style={{ background: "none", border: "none", color: C.red, cursor: "pointer", padding: 4 }}><UserMinus size={15} /></button>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={cardStyle()}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: "0 0 14px" }}>Announcements</h3>
+            {grp.isCreator && (
+              <div style={{ marginBottom: 16 }}>
+                <textarea style={{ ...inp, height: 70, resize: "none", fontSize: 13 }} value={newAnnouncement} onChange={e => setNewAnnouncement(e.target.value)} placeholder="Post an announcement…" />
+                <button style={{ ...btnP, marginTop: 8, padding: "7px 14px", fontSize: 12 }}><Send size={13} /> Post</button>
+              </div>
+            )}
+            {grp.announcements.length === 0
+              ? <EmptyState icon={Volume2} title="No announcements yet" subtitle="" />
+              : grp.announcements.map(a => (
+                  <div key={a.announcementId} style={{ padding: "12px 14px", background: C.surface, borderRadius: 10, border: `1px solid ${C.border}`, marginBottom: 10 }}>
+                    <p style={{ fontSize: 13, color: C.tx, margin: "0 0 6px", lineHeight: 1.5 }}>{a.content}</p>
+                    <p style={{ fontSize: 11, color: C.txM, margin: 0 }}>{a.author} · {a.timestamp}</p>
+                  </div>
+                ))
+            }
+          </div>
+        </div>
+        {!grp.isCreator && (
+          <button onClick={() => { handleLeave(grp.groupId); setSelectedGroup(null); }} style={{ ...btnD, marginTop: 20 }}><LogOut size={14} /> Leave Group</button>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      <SectionHeader title="Study Groups" subtitle="Collaborate with classmates on shared courses" />
+      <Tabs tabs={tabs} active={tab} onSelect={setTab} />
+      {tab === "myGroups" && (
+        myGroups.length === 0
+          ? <EmptyState icon={Layers} title="You haven't joined any groups" subtitle="Discover groups to join" action={<button onClick={() => setTab("discover")} style={btnP}>Explore Groups</button>} />
+          : <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {myGroups.map(g => (
+                <div key={g.groupId} className="cardHover" style={cardStyle()}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: 0 }}>{g.groupName}</h3>
+                    <StatusBadge status={g.visibility} />
+                  </div>
+                  <p style={{ fontSize: 13, color: C.txM, margin: "0 0 10px", lineHeight: 1.5 }}>{g.description}</p>
+                  <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                    <Badge label={g.courseCode} color={C.cyan} />
+                    <Badge label={`${g.memberCount}/${g.maxMembers}`} color={C.txS} />
+                    {g.isCreator && <Badge label="Creator" color={C.amber} />}
+                  </div>
+                  <button onClick={() => setSelectedGroup(g.groupId)} style={{ ...btnS, padding: "7px 14px", fontSize: 12 }}>
+                    <Eye size={14} /> View Group
+                  </button>
+                </div>
+              ))}
+            </div>
+      )}
+      {tab === "discover" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {discoverGroups.map(g => (
+            <div key={g.groupId} className="cardHover" style={cardStyle()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: 0 }}>{g.groupName}</h3>
+                <StatusBadge status={g.visibility} />
+              </div>
+              <p style={{ fontSize: 13, color: C.txM, margin: "0 0 10px", lineHeight: 1.5 }}>{g.description}</p>
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                <Badge label={g.courseCode} color={C.cyan} />
+                <Badge label={`${g.memberCount}/${g.maxMembers} members`} color={C.txS} />
+              </div>
+              {g.visibility === "private"
+                ? <button style={{ ...btnS, padding: "7px 14px", fontSize: 12 }}><Lock size={14} /> Request to Join</button>
+                : <button onClick={() => handleJoin(g.groupId)} style={{ ...btnP, padding: "7px 14px", fontSize: 12 }}><Plus size={14} /> Join Group</button>
+              }
+            </div>
+          ))}
+        </div>
+      )}
+      {tab === "create" && (
+        <div style={{ maxWidth: 540 }}>
+          <div style={cardStyle()}>
+            <h3 style={{ fontSize: 17, fontWeight: 700, color: C.tx, margin: "0 0 20px" }}>Create New Study Group</h3>
+            <FormField label="Group Name">
+              <input style={inp} value={newGroup.name} onChange={e => setNewGroup(g => ({ ...g, name: e.target.value }))} placeholder="e.g. CS401 Algorithms Team" />
+            </FormField>
+            <FormField label="Description">
+              <textarea style={{ ...inp, height: 80, resize: "none" }} value={newGroup.desc} onChange={e => setNewGroup(g => ({ ...g, desc: e.target.value }))} placeholder="What will your group study?" />
+            </FormField>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <FormField label="Course Code">
+                <input style={inp} value={newGroup.course} onChange={e => setNewGroup(g => ({ ...g, course: e.target.value }))} placeholder="e.g. CS401" />
+              </FormField>
+              <FormField label="Max Members">
+                <select style={{ ...inp, appearance: "none" }} value={newGroup.max} onChange={e => setNewGroup(g => ({ ...g, max: e.target.value }))}>
+                  {[4,6,8,10,12,15,20].map(n => <option key={n}>{n}</option>)}
+                </select>
+              </FormField>
+            </div>
+            <FormField label="Visibility">
+              <div style={{ display: "flex", gap: 10 }}>
+                {["public", "private"].map(v => (
+                  <button key={v} onClick={() => setNewGroup(g => ({ ...g, visibility: v }))}
+                    style={{ flex: 1, padding: "10px 16px", borderRadius: 8, border: `1px solid ${newGroup.visibility === v ? C.cyan : C.border}`, background: newGroup.visibility === v ? `${C.cyan}15` : C.depth, color: newGroup.visibility === v ? C.cyan : C.txS, cursor: "pointer", fontWeight: 600, fontSize: 13, textTransform: "capitalize" }}>
+                    {v === "public" ? <><Eye size={13} style={{ marginRight: 6 }} />Public</> : <><Lock size={13} style={{ marginRight: 6 }} />Private</>}
+                  </button>
+                ))}
+              </div>
+            </FormField>
+            <button style={{ ...btnP, marginTop: 8 }}><Plus size={16} /> Create Group</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: RESOURCES (UC 15–27)
+// ══════════════════════════════════════════════════════════════
+function ResourcesPage() {
+  const [tab, setTab] = useState("browse");
+  const [searchQ, setSearchQ] = useState("");
+  const [catFilter, setCatFilter] = useState("All");
+  const [showHandover, setShowHandover] = useState(false);
+  const [showReview, setShowReview] = useState(null);
+  const [showReport, setShowReport] = useState(false);
+  const [myResources, setMyResources] = useState(resources.filter(r => r.ownerId === "u001"));
+  const [newResource, setNewResource] = useState({ title: "", category: "Book", condition: "Good", duration: "7", description: "" });
+  const [userRating, setUserRating] = useState(0);
+  const cats = ["All", "Book", "Equipment", "Notes"];
+  const filtered = resources.filter(r =>
+    (catFilter === "All" || r.category === catFilter) &&
+    (searchQ === "" || r.title.toLowerCase().includes(searchQ.toLowerCase()))
+  );
+  const toggleStatus = (id) => setMyResources(rs => rs.map(r => r.resourceId === id ? { ...r, status: r.status === "paused" ? "available" : "paused" } : r));
+  const tabs = [
+    { id: "browse", label: "Browse" },
+    { id: "post", label: "Post Resource" },
+    { id: "myListings", label: "My Listings", count: myResources.length },
+    { id: "borrowRequests", label: "Borrow Requests", count: borrowRequests.filter(b => b.status === "pending").length },
+    { id: "history", label: "Lending History" },
+  ];
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      {showHandover && (
+        <Modal title="Schedule Campus Handover" onClose={() => setShowHandover(false)}>
+          <FormField label="Meeting Location">
+            <input style={inp} defaultValue="Library Main Entrance" />
+          </FormField>
+          <FormField label="Date">
+            <input type="date" style={inp} defaultValue="2024-03-13" />
+          </FormField>
+          <FormField label="Time">
+            <input type="time" style={inp} defaultValue="14:00" />
+          </FormField>
+          <FormField label="Notes (optional)">
+            <input style={inp} placeholder="Any special instructions?" />
+          </FormField>
+          <button onClick={() => setShowHandover(false)} style={{ ...btnP, marginTop: 8, width: "100%", justifyContent: "center" }}><Calendar size={15} /> Confirm Handover</button>
+        </Modal>
+      )}
+      {showReview && (
+        <Modal title="Rate & Review User" onClose={() => setShowReview(null)}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <Avatar name={showReview.borrowerName} size={44} />
+            <div>
+              <p style={{ fontWeight: 700, color: C.tx, margin: 0 }}>{showReview.borrowerName}</p>
+              <p style={{ fontSize: 12, color: C.txM, margin: "3px 0 0" }}>Returned: {showReview.resourceTitle}</p>
+            </div>
+          </div>
+          <FormField label="Rating">
+            <div style={{ display: "flex", gap: 8 }}>
+              {[1,2,3,4,5].map(i => (
+                <button key={i} onClick={() => setUserRating(i)} style={{ background: "none", border: "none", cursor: "pointer" }}>
+                  <Star size={28} fill={i <= userRating ? C.amber : "none"} color={i <= userRating ? C.amber : C.txM} />
+                </button>
+              ))}
+            </div>
+          </FormField>
+          <FormField label="Comment">
+            <textarea style={{ ...inp, height: 80, resize: "none" }} placeholder="How was the experience?" />
+          </FormField>
+          <button onClick={() => setShowReview(null)} style={{ ...btnP, marginTop: 8, width: "100%", justifyContent: "center" }}><Star size={15} /> Submit Review</button>
+        </Modal>
+      )}
+      {showReport && (
+        <Modal title="Report Overdue / Damaged Item" onClose={() => setShowReport(false)}>
+          <div style={{ padding: "12px 14px", background: `${C.red}12`, border: `1px solid ${C.red}33`, borderRadius: 8, marginBottom: 16 }}>
+            <p style={{ color: C.red, fontSize: 13, margin: 0 }}>⚠ Filing a dispute will notify the admin team and the borrower.</p>
+          </div>
+          <FormField label="Issue Type">
+            <select style={{ ...inp, appearance: "none" }}>
+              <option>Item returned damaged</option>
+              <option>Item not returned (overdue)</option>
+              <option>Wrong item returned</option>
+              <option>Other</option>
+            </select>
+          </FormField>
+          <FormField label="Description">
+            <textarea style={{ ...inp, height: 80, resize: "none" }} placeholder="Describe the issue in detail…" />
+          </FormField>
+          <button onClick={() => setShowReport(false)} style={{ ...btnD, marginTop: 8, width: "100%", justifyContent: "center" }}><Flag size={15} /> Submit Dispute</button>
+        </Modal>
+      )}
+      <SectionHeader title="Resources" subtitle="Lend and borrow campus resources" />
+      <Tabs tabs={tabs} active={tab} onSelect={setTab} />
+      {tab === "browse" && (
+        <div>
+          <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+            <div style={{ position: "relative", flex: 1 }}>
+              <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+              <input style={{ ...inp, paddingLeft: 36 }} placeholder="Search resources…" value={searchQ} onChange={e => setSearchQ(e.target.value)} />
+            </div>
+            <select style={{ ...inp, width: 150, appearance: "none" }} value={catFilter} onChange={e => setCatFilter(e.target.value)}>
+              {cats.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {filtered.map(r => (
+              <ResourceCard key={r.resourceId} resource={r} actionEl={
+                <div style={{ display: "flex", gap: 8 }}>
+                  {r.status === "available" && <button onClick={() => setShowHandover(true)} style={{ ...btnP, padding: "7px 14px", fontSize: 12 }}><Download size={14} /> Request Borrow</button>}
+                  <button style={{ ...btnS, padding: "7px 12px", fontSize: 12 }}><MessageSquare size={14} /> Contact</button>
+                </div>
+              } />
+            ))}
+          </div>
+        </div>
+      )}
+      {tab === "post" && (
+        <div style={{ maxWidth: 540 }}>
+          <div style={cardStyle()}>
+            <h3 style={{ fontSize: 17, fontWeight: 700, color: C.tx, margin: "0 0 20px" }}>Post Resource for Lending</h3>
+            <FormField label="Title">
+              <input style={inp} value={newResource.title} onChange={e => setNewResource(r => ({ ...r, title: e.target.value }))} placeholder="e.g. Introduction to Algorithms 4th ed." />
+            </FormField>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <FormField label="Category">
+                <select style={{ ...inp, appearance: "none" }} value={newResource.category} onChange={e => setNewResource(r => ({ ...r, category: e.target.value }))}>
+                  {["Book", "Equipment", "Notes", "Other"].map(c => <option key={c}>{c}</option>)}
+                </select>
+              </FormField>
+              <FormField label="Condition">
+                <select style={{ ...inp, appearance: "none" }} value={newResource.condition} onChange={e => setNewResource(r => ({ ...r, condition: e.target.value }))}>
+                  {["Excellent", "Good", "Fair", "Poor"].map(c => <option key={c}>{c}</option>)}
+                </select>
+              </FormField>
+            </div>
+            <FormField label="Max Borrow Duration (days)">
+              <input type="number" style={inp} value={newResource.duration} onChange={e => setNewResource(r => ({ ...r, duration: e.target.value }))} min="1" max="30" />
+            </FormField>
+            <FormField label="Description">
+              <textarea style={{ ...inp, height: 80, resize: "none" }} value={newResource.description} onChange={e => setNewResource(r => ({ ...r, description: e.target.value }))} placeholder="Describe the item…" />
+            </FormField>
+            <FormField label="Upload Image (optional)">
+              <div style={{ border: `2px dashed ${C.border}`, borderRadius: 8, padding: "24px 16px", textAlign: "center", background: C.depth, cursor: "pointer" }}>
+                <Image size={24} color={C.txM} style={{ marginBottom: 8 }} />
+                <p style={{ color: C.txM, fontSize: 13, margin: 0 }}>Click or drag to upload an image</p>
+              </div>
+            </FormField>
+            <button style={{ ...btnP, marginTop: 4 }}><Plus size={16} /> Post Listing</button>
+          </div>
+        </div>
+      )}
+      {tab === "myListings" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {myResources.map(r => (
+            <div key={r.resourceId} style={cardStyle()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <p style={{ fontWeight: 700, color: C.tx, margin: 0 }}>{r.title}</p>
+                  <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                    <Badge label={r.category} color={C.cyan} />
+                    <StatusBadge status={r.status} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => toggleStatus(r.resourceId)} style={{ ...btnS, padding: "6px 12px", fontSize: 12 }}>
+                    {r.status === "paused" ? <><Play size={13} /> Resume</> : <><Pause size={13} /> Pause</>}
+                  </button>
+                  <button style={{ ...btnS, padding: "6px 10px", fontSize: 12 }}><Edit size={13} /></button>
+                  <button style={{ ...btnD, padding: "6px 10px", fontSize: 12 }}><Trash2 size={13} /></button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {tab === "borrowRequests" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {borrowRequests.map(req => (
+            <div key={req.requestId} style={cardStyle()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <p style={{ fontWeight: 700, color: C.tx, margin: "0 0 4px" }}>{req.resource.title}</p>
+                  <p style={{ fontSize: 13, color: C.txS, margin: 0 }}>Requested by <strong>{req.requester.name}</strong> · {req.requestedDuration} days · {req.requestDate}</p>
+                </div>
+                <StatusBadge status={req.status} />
+              </div>
+              {req.status === "pending" && (
+                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                  <button onClick={() => setShowHandover(true)} style={btnG}><Check size={14} /> Approve & Schedule Handover</button>
+                  <button style={btnD}><X size={14} /> Reject</button>
+                </div>
+              )}
+              {req.status === "approved" && (
+                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                  <button style={btnG}><CheckCircle size={14} /> Confirm Receipt</button>
+                  <button onClick={() => setShowHandover(true)} style={btnS}><Calendar size={14} /> Reschedule</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {tab === "history" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {lendingHistory.map(h => (
+            <div key={h.transactionId} style={cardStyle()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <p style={{ fontWeight: 700, color: C.tx, margin: "0 0 4px" }}>{h.resourceTitle}</p>
+                  <p style={{ fontSize: 13, color: C.txS, margin: "0 0 6px" }}>Borrowed by <strong>{h.borrowerName}</strong></p>
+                  <p style={{ fontSize: 12, color: C.txM, margin: 0 }}>
+                    {h.startDate} → {h.returnDate || "Not returned"}
+                  </p>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <StatusBadge status={h.status} />
+                  {h.rating && <div style={{ marginTop: 8 }}><StarRating rating={h.rating} /></div>}
+                </div>
+              </div>
+              {h.status === "returned" && !h.rating && (
+                <button onClick={() => setShowReview(h)} style={{ ...btnS, marginTop: 12, padding: "7px 14px", fontSize: 12 }}><Star size={14} /> Rate Borrower</button>
+              )}
+              {h.status === "overdue" && (
+                <button onClick={() => setShowReport(true)} style={{ ...btnD, marginTop: 12 }}><Flag size={14} /> Report Dispute</button>
+              )}
+              {h.status === "returned" && (
+                <div style={{ marginTop: 12 }}>
+                  <button style={{ ...btnG, padding: "7px 14px", fontSize: 12 }}><CheckCircle size={14} /> Confirm Return</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: MESSAGES (UC 28)
+// ══════════════════════════════════════════════════════════════
+function MessagesPage() {
+  const [activeConv, setActiveConv] = useState(conversations[0].conversationId);
+  const [msgInput, setMsgInput] = useState("");
+  const [convos, setConvos] = useState(conversations);
+  const messagesEndRef = useRef(null);
+  const currentConvo = convos.find(c => c.conversationId === activeConv);
+  const sendMsg = () => {
+    if (!msgInput.trim()) return;
+    setConvos(cs => cs.map(c => c.conversationId === activeConv
+      ? { ...c, messages: [...c.messages, { msgId: `m${Date.now()}`, text: msgInput, time: "Just now", mine: true }], lastMsg: msgInput }
+      : c
+    ));
+    setMsgInput("");
+  };
+  return (
+    <div className="pageAnim" style={{ height: "100%", display: "flex", overflow: "hidden" }}>
+      <div style={{ width: 280, borderRight: `1px solid ${C.border}`, background: C.depth, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ padding: "16px 16px 12px", borderBottom: `1px solid ${C.border}` }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: C.tx, margin: "0 0 10px" }}>Messages</h2>
+          <div style={{ position: "relative" }}>
+            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+            <input style={{ ...inp, paddingLeft: 32, fontSize: 13, padding: "8px 12px 8px 32px" }} placeholder="Search…" />
+          </div>
+        </div>
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          {convos.map(c => (
+            <button key={c.conversationId} onClick={() => setActiveConv(c.conversationId)}
+              style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "12px 16px", background: activeConv === c.conversationId ? `${C.cyan}10` : "none", border: "none", borderLeft: activeConv === c.conversationId ? `3px solid ${C.cyan}` : "3px solid transparent", cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
+              <div style={{ position: "relative" }}>
+                <Avatar name={c.participant.name} size={38} />
+                <div className="pulse" style={{ position: "absolute", bottom: 1, right: 1, width: 9, height: 9, borderRadius: "50%", background: C.green, border: `2px solid ${C.depth}` }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: C.tx, margin: 0 }}>{c.participant.name}</p>
+                  <p style={{ fontSize: 10, color: C.txM, margin: 0 }}>{c.time}</p>
+                </div>
+                <p style={{ fontSize: 12, color: C.txM, margin: "2px 0 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.lastMsg}</p>
+              </div>
+              {c.unread > 0 && <span style={{ background: C.cyan, borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{c.unread}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {currentConvo && (
+          <>
+            <div style={{ padding: "14px 20px", borderBottom: `1px solid ${C.border}`, background: C.depth, display: "flex", alignItems: "center", gap: 12 }}>
+              <Avatar name={currentConvo.participant.name} size={36} />
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: C.tx, margin: 0 }}>{currentConvo.participant.name}</p>
+                <p style={{ fontSize: 11, color: C.green, margin: 0 }}>● Online</p>
+              </div>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 10px", display: "flex", flexDirection: "column", gap: 10 }}>
+              {currentConvo.messages.map(m => (
+                <div key={m.msgId} style={{ display: "flex", justifyContent: m.mine ? "flex-end" : "flex-start", alignItems: "flex-end", gap: 8 }}>
+                  {!m.mine && <Avatar name={currentConvo.participant.name} size={28} />}
+                  <div className={m.mine ? "msgBubbleMine" : "msgBubbleOther"} style={{ maxWidth: "65%", padding: "10px 14px" }}>
+                    <p style={{ fontSize: 13, color: "#fff", margin: 0, lineHeight: 1.5 }}>{m.text}</p>
+                    <p style={{ fontSize: 10, color: m.mine ? "rgba(255,255,255,0.6)" : C.txM, margin: "4px 0 0", textAlign: m.mine ? "right" : "left" }}>{m.time}</p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+            <div style={{ padding: "12px 20px", borderTop: `1px solid ${C.border}`, background: C.depth, display: "flex", gap: 10, alignItems: "flex-end" }}>
+              <input style={{ ...inp, flex: 1, borderRadius: 20, padding: "10px 16px" }} placeholder="Type a message…" value={msgInput} onChange={e => setMsgInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendMsg()} />
+              <button onClick={sendMsg} style={{ ...btnP, borderRadius: "50%", width: 40, height: 40, padding: 0, justifyContent: "center", flexShrink: 0 }}>
+                <Send size={16} />
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: NOTIFICATIONS (UC 29)
+// ══════════════════════════════════════════════════════════════
+function NotificationsPage() {
+  const [notifs, setNotifs] = useState(notifications);
+  const markAllRead = () => setNotifs(ns => ns.map(n => ({ ...n, isRead: true })));
+  const notifIcons = {
+    partner: { icon: UserPlus, color: C.cyan },
+    borrow: { icon: Package, color: C.green },
+    group: { icon: Layers, color: C.purple },
+    return: { icon: RefreshCw, color: C.amber },
+    message: { icon: MessageSquare, color: C.cyan },
+    reminder: { icon: Clock, color: C.red },
+  };
+  return (
+    <div className="pageAnim" style={{ padding: 28, maxWidth: 680, margin: "0 auto" }}>
+      <SectionHeader title="Notifications" subtitle={`${notifs.filter(n => !n.isRead).length} unread`}
+        action={<button onClick={markAllRead} style={{ ...btnS, padding: "7px 14px", fontSize: 12 }}><Check size={14} /> Mark all read</button>} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {notifs.map(n => {
+          const info = notifIcons[n.type] || { icon: Bell, color: C.txS };
+          return (
+            <div key={n.notifId} onClick={() => setNotifs(ns => ns.map(x => x.notifId === n.notifId ? { ...x, isRead: true } : x))}
+              style={{ ...cardStyle({ padding: "14px 18px", cursor: "pointer" }), borderLeft: `3px solid ${n.isRead ? C.border : info.color}`, opacity: n.isRead ? 0.7 : 1, transition: "all 0.15s" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: `${info.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <info.icon size={18} color={info.color} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 13, color: n.isRead ? C.txS : C.tx, margin: 0, fontWeight: n.isRead ? 400 : 600 }}>{n.content}</p>
+                  <p style={{ fontSize: 11, color: C.txM, margin: "4px 0 0" }}>{n.time}</p>
+                </div>
+                {!n.isRead && <div style={{ width: 8, height: 8, borderRadius: "50%", background: info.color, flexShrink: 0 }} />}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: LOST & FOUND (UC 30)
+// ══════════════════════════════════════════════════════════════
+function LostFoundPage() {
+  const [items, setItems] = useState(lostFoundItems);
+  const [filter, setFilter] = useState("All");
+  const [showReport, setShowReport] = useState(false);
+  const [reportType, setReportType] = useState("Lost");
+  const filtered = items.filter(i => filter === "All" || i.type === filter || (filter === "Open" ? i.status === "open" : i.status === "resolved"));
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      {showReport && (
+        <Modal title={`Report ${reportType} Item`} onClose={() => setShowReport(false)}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+            {["Lost", "Found"].map(t => (
+              <button key={t} onClick={() => setReportType(t)}
+                style={{ flex: 1, padding: "9px 16px", borderRadius: 8, border: `1px solid ${reportType === t ? C.cyan : C.border}`, background: reportType === t ? `${C.cyan}15` : C.depth, color: reportType === t ? C.cyan : C.txS, cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
+                {t}
+              </button>
+            ))}
+          </div>
+          <FormField label="Description">
+            <textarea style={{ ...inp, height: 80, resize: "none" }} placeholder="Describe the item in detail (color, brand, features)…" />
+          </FormField>
+          <FormField label="Location">
+            <input style={inp} placeholder="Where was it lost/found?" />
+          </FormField>
+          <FormField label="Upload Image (optional)">
+            <div style={{ border: `2px dashed ${C.border}`, borderRadius: 8, padding: "20px 16px", textAlign: "center", background: C.depth, cursor: "pointer" }}>
+              <Image size={20} color={C.txM} style={{ marginBottom: 6 }} />
+              <p style={{ color: C.txM, fontSize: 12, margin: 0 }}>Click to upload image</p>
+            </div>
+          </FormField>
+          <button onClick={() => setShowReport(false)} style={{ ...btnP, marginTop: 8, width: "100%", justifyContent: "center" }}><Flag size={15} /> Submit Report</button>
+        </Modal>
+      )}
+      <SectionHeader title="Lost & Found" subtitle="Help reunite students with their belongings"
+        action={<button onClick={() => setShowReport(true)} style={btnP}><Plus size={16} /> Report Item</button>} />
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        {["All", "Lost", "Found", "Open"].map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${filter === f ? C.cyan : C.border}`, background: filter === f ? `${C.cyan}15` : "none", color: filter === f ? C.cyan : C.txS, cursor: "pointer", fontSize: 13, fontWeight: filter === f ? 600 : 400 }}>
+            {f}
+          </button>
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {filtered.map(item => (
+          <div key={item.itemId} className="cardHover" style={{ ...cardStyle(), borderLeft: `3px solid ${item.type === "Lost" ? C.red : C.green}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <Badge label={item.type} color={item.type === "Lost" ? C.red : C.green} />
+                <StatusBadge status={item.status} />
+              </div>
+              <span style={{ fontSize: 11, color: C.txM }}>{item.dateReported}</span>
+            </div>
+            <p style={{ fontSize: 14, color: C.tx, margin: "0 0 8px", fontWeight: 500, lineHeight: 1.5 }}>{item.description}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+              <MapPin size={13} color={C.txM} />
+              <span style={{ fontSize: 12, color: C.txM }}>{item.location}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 11, color: C.txM }}>Reported by: {item.reporter}</span>
+              {item.status === "open" && <button style={{ ...btnS, padding: "5px 12px", fontSize: 12 }}><MessageSquare size={13} /> Contact</button>}
+              {item.status === "resolved" && <Badge label="Reunited ✓" color={C.green} />}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODULE: ADMIN (UC 31–34)
+// ══════════════════════════════════════════════════════════════
+function AdminDashboardPage({ onNavigate }) {
+  const stats = [
+    { label: "Total Users", value: "1,847", icon: Users, color: C.cyan, sub: "+23 this week" },
+    { label: "Active Loans", value: "89", icon: Package, color: C.amber, sub: "12 overdue" },
+    { label: "Study Groups", value: "124", icon: Layers, color: C.purple, sub: "18 created this month" },
+    { label: "Pending Reports", value: "7", icon: Flag, color: C.red, sub: "Needs attention" },
+  ];
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: C.tx, margin: 0 }}>Admin Dashboard</h1>
+        <p style={{ color: C.txM, fontSize: 14, marginTop: 4 }}>Platform health & management overview</p>
+      </div>
+      <div style={{ display: "flex", gap: 16, marginBottom: 28, flexWrap: "wrap" }}>
+        {stats.map(s => <StatCard key={s.label} {...s} />)}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div style={cardStyle()}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: "0 0 16px" }}>Pending Actions</h3>
+          {[
+            { label: "User reports awaiting review", count: 3, color: C.red, page: "adminReports" },
+            { label: "Flagged resource listings", count: 2, color: C.amber, page: "adminResources" },
+            { label: "Blocked user appeals", count: 1, color: C.purple, page: "adminUsers" },
+          ].map(a => (
+            <button key={a.label} onClick={() => onNavigate(a.page)}
+              style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "11px 14px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.txS, cursor: "pointer", fontSize: 13, marginBottom: 8, textAlign: "left" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: a.color, flexShrink: 0 }} />
+              <span style={{ flex: 1 }}>{a.label}</span>
+              <span style={{ background: `${a.color}22`, color: a.color, borderRadius: 20, padding: "2px 8px", fontSize: 12, fontWeight: 700 }}>{a.count}</span>
+              <ChevronRight size={14} color={C.txM} />
+            </button>
+          ))}
+        </div>
+        <div style={cardStyle()}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: C.tx, margin: "0 0 16px" }}>Platform Stats</h3>
+          {[
+            { label: "Active Users (30d)", value: "1,623", pct: 87.9, color: C.green },
+            { label: "Resource Utilization", value: "342 listed", pct: 62, color: C.amber },
+            { label: "Group Fill Rate", value: "124 groups", pct: 75, color: C.purple },
+          ].map(s => (
+            <div key={s.label} style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 13, color: C.txS }}>{s.label}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: C.tx }}>{s.value}</span>
+              </div>
+              <div style={{ height: 6, background: C.border, borderRadius: 3 }}>
+                <div style={{ height: "100%", width: `${s.pct}%`, background: s.color, borderRadius: 3, transition: "width 1s ease" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+function AdminUsersPage() {
+  const [users, setUsers] = useState(adminUsers);
+  const [search, setSearch] = useState("");
+  const toggleBlock = (id) => setUsers(us => us.map(u => u.userId === id ? { ...u, status: u.status === "blocked" ? "active" : "blocked" } : u));
+  const filtered = users.filter(u => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      <SectionHeader title="Manage Users" subtitle="Block, unblock, and monitor student accounts" />
+      <div style={{ position: "relative", maxWidth: 400, marginBottom: 20 }}>
+        <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.txM }} />
+        <input style={{ ...inp, paddingLeft: 34 }} placeholder="Search users…" value={search} onChange={e => setSearch(e.target.value)} />
+      </div>
+      <div style={cardStyle({ padding: 0, overflow: "hidden" })}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: C.surface }}>
+              {["User", "Department", "Status", "Joined", "Reports", "Actions"].map(h => (
+                <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: C.txM, textTransform: "uppercase", letterSpacing: 0.8 }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((u, i) => (
+              <tr key={u.userId} style={{ borderTop: `1px solid ${C.border}`, background: i % 2 === 0 ? C.card : "transparent" }}>
+                <td style={{ padding: "12px 16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Avatar name={u.name} size={32} />
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: C.tx, margin: 0 }}>{u.name}</p>
+                      <p style={{ fontSize: 11, color: C.txM, margin: 0 }}>{u.email}</p>
+                    </div>
+                  </div>
+                </td>
+                <td style={{ padding: "12px 16px", fontSize: 13, color: C.txS }}>{u.dept}</td>
+                <td style={{ padding: "12px 16px" }}><StatusBadge status={u.status} /></td>
+                <td style={{ padding: "12px 16px", fontSize: 13, color: C.txM }}>{u.joined}</td>
+                <td style={{ padding: "12px 16px" }}>
+                  {u.reports > 0
+                    ? <span style={{ color: C.red, fontWeight: 700, fontSize: 13 }}>{u.reports}</span>
+                    : <span style={{ color: C.txM, fontSize: 13 }}>0</span>
+                  }
+                </td>
+                <td style={{ padding: "12px 16px" }}>
+                  <button onClick={() => toggleBlock(u.userId)}
+                    style={{ ...(u.status === "blocked" ? btnG : btnD), padding: "6px 12px", fontSize: 12 }}>
+                    {u.status === "blocked" ? <><UserCheck size={13} /> Unblock</> : <><UserX size={13} /> Block</>}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+function AdminResourcesPage() {
+  const [items, setItems] = useState(adminFlaggedResources);
+  const removeItem = (id) => setItems(rs => rs.filter(r => r.resourceId !== id));
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      <SectionHeader title="Resource Listings" subtitle="Moderate and manage platform resource listings" />
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {items.map(r => (
+          <div key={r.resourceId} style={{ ...cardStyle(), borderLeft: `3px solid ${r.status === "flagged" ? C.red : C.green}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
+                  <p style={{ fontWeight: 700, color: C.tx, margin: 0 }}>{r.title}</p>
+                  <StatusBadge status={r.status} />
+                </div>
+                <p style={{ fontSize: 13, color: C.txS, margin: 0 }}>by {r.owner} · {r.category}</p>
+                {r.reason && <p style={{ fontSize: 12, color: C.red, margin: "6px 0 0" }}>⚑ {r.reason} · Flagged {r.date}</p>}
+              </div>
+              {r.status === "flagged" && (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => setItems(rs => rs.map(x => x.resourceId === r.resourceId ? { ...x, status: "active", reason: null } : x))}
+                    style={btnG}><Check size={14} /> Approve</button>
+                  <button onClick={() => removeItem(r.resourceId)} style={btnD}><Trash2 size={14} /> Remove</button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+function AdminReportsPage() {
+  const [reports, setReports] = useState(adminReports);
+  const statusColors = { pending: C.amber, investigating: C.cyan, resolved: C.green };
+  return (
+    <div className="pageAnim" style={{ padding: 28 }}>
+      <SectionHeader title="Platform Reports" subtitle="Review and resolve user-submitted reports" />
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {reports.map(r => (
+          <div key={r.reportId} style={cardStyle()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+              <div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
+                  <Badge label={r.type} color={C.cyan} />
+                  <StatusBadge status={r.status} />
+                </div>
+                <p style={{ fontWeight: 600, color: C.tx, margin: "0 0 4px" }}>{r.desc}</p>
+                <p style={{ fontSize: 13, color: C.txS, margin: 0 }}>
+                  Reported: <strong>{r.reported}</strong> · By: {r.by} · {r.date}
+                </p>
+              </div>
+            </div>
+            {r.status !== "resolved" && (
+              <div style={{ display: "flex", gap: 8 }}>
+                {r.status === "pending" && (
+                  <button onClick={() => setReports(rs => rs.map(x => x.reportId === r.reportId ? { ...x, status: "investigating" } : x))}
+                    style={btnS}><Activity size={14} /> Start Investigation</button>
+                )}
+                <button onClick={() => setReports(rs => rs.map(x => x.reportId === r.reportId ? { ...x, status: "resolved" } : x))}
+                  style={btnG}><CheckCircle size={14} /> Mark Resolved</button>
+                <button style={btnD}><Flag size={14} /> Escalate</button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MAIN APP – Router & State
+// ══════════════════════════════════════════════════════════════
+export default function App() {
+  const [currentPage, setCurrentPage] = useState("login");
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const handleLogin = (role) => {
+    if (role === "admin") {
+      setCurrentUser(adminUserData);
+      setIsAdmin(true);
+      setCurrentPage("adminDashboard");
+    } else {
+      setCurrentUser(currentUserData);
+      setIsAdmin(false);
+      setCurrentPage("dashboard");
+    }
+  };
+
+  const handleNavigate = (page) => {
+    if (page === "login") {
+      setCurrentUser(null);
+      setIsAdmin(false);
+    }
+    setCurrentPage(page);
+  };
+
+  // Auth pages (not logged in)
+  if (!currentUser) {
+    return (
+      <>
+        <GlobalStyles />
+        {currentPage === "login" && <LoginPage onLogin={handleLogin} onNavigate={handleNavigate} />}
+        {currentPage === "register" && <RegisterPage onNavigate={handleNavigate} />}
+        {currentPage === "verifyStudent" && <VerifyStudentPage onNavigate={handleNavigate} />}
+        {currentPage === "resetPassword" && <ResetPasswordPage onNavigate={handleNavigate} />}
+      </>
+    );
+  }
+
+  // Main app (logged in)
+  const pageComponents = {
+    dashboard:        <DashboardPage onNavigate={handleNavigate} />,
+    studyPartners:    <StudyPartnersPage />,
+    studyGroups:      <StudyGroupsPage />,
+    resources:        <ResourcesPage />,
+    messages:         <MessagesPage />,
+    notifications:    <NotificationsPage />,
+    lostFound:        <LostFoundPage />,
+    profile:          <ProfilePage user={currentUser} onNavigate={handleNavigate} />,
+    adminDashboard:   <AdminDashboardPage onNavigate={handleNavigate} />,
+    adminUsers:       <AdminUsersPage />,
+    adminResources:   <AdminResourcesPage />,
+    adminReports:     <AdminReportsPage />,
+  };
+
+  return (
+    <>
+      <GlobalStyles />
+      <AppShell user={currentUser} currentPage={currentPage} onNavigate={handleNavigate} isAdmin={isAdmin}>
+        {pageComponents[currentPage] || pageComponents["dashboard"]}
+      </AppShell>
+    </>
+  );
+}

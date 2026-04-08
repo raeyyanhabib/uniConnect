@@ -1,0 +1,27 @@
+# Walkthrough — Full Backend & Frontend Auth Integration
+
+## What Was Built (Backend)
+- **12 SQLite tables** with 7 seeded accounts
+- **9 Express route modules** covering all 34 use cases ([auth](file:///d:/AG%20Projects/server/middleware/auth.js#5-21), `users`, `partners`, `groups`, `resources`, `messages`, `notifications`, `lostfound`, [admin](file:///d:/AG%20Projects/server/middleware/auth.js#22-29))
+- **30/30 API tests passing**
+
+## What Was Built (Frontend Phase 1)
+- Added `server.proxy` to [vite.config.ts](file:///AG%20Projects/vite.config.ts) to forward `/api` requests to port 3001
+- Created [src/api.ts](file:///d:/AG%20Projects/src/api.ts) to manage JWT tokens and wrap `fetch` calls
+- Rewrote [LoginPage](file:///AG%20Projects/src/App.tsx#588-666) to hit `POST /api/auth/login`
+- Rewrote [RegisterPage](file:///AG%20Projects/src/App.tsx#667-774) to hit `POST /api/auth/register`
+- Rewrote [VerifyStudentPage](file:///AG%20Projects/src/App.tsx#775-822) to hit `POST /api/auth/verify`
+- Rewrote [ResetPasswordPage](file:///AG%20Projects/src/App.tsx#823-878) to hit `POST /api/auth/reset-password`
+- Handled global state mapping in [App.tsx](file:///AG%20Projects/src/App.tsx) from real API response
+
+## Status
+- **Backend:** Running on `http://localhost:3001`
+- **Frontend App:** Running on `http://localhost:5173`
+
+You can now open your browser and try logging in or registering a new account. It is communicating with the real database!
+
+### Test Accounts
+| Email | Password | Role |
+|-------|----------|------|
+| alex.chen@university.edu | password123 | Student |
+| admin@university.edu | admin123 | Admin |

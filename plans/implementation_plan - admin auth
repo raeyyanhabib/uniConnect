@@ -1,0 +1,27 @@
+# Implementation Plan: Admin Moderation System
+
+## Goal Description
+The user wants to implement strict moderation abilities, allowing Admins to block users, remove flagged listings, and intervene in lending disputes.
+
+**Discovery:**
+The database queries and strict backend security logic are **already fully developed**!
+- [server/middleware/auth.js](file:///d:/AG%20Projects/server/middleware/auth.js) has a rock-solid [adminMiddleware](file:///d:/AG%20Projects/server/middleware/auth.js#22-29) interceptor that blocks anyone without an [admin](file:///d:/AG%20Projects/server/middleware/auth.js#22-29) role in their decoded JWT.
+- [server/routes/admin.js](file:///d:/AG%20Projects/server/routes/admin.js) successfully utilizes this middleware to guard perfectly written endpoints for `PUT /users/:id/block`, `GET /dashboard`, `DELETE /resources/:id`, and `PUT /reports/:id`.
+
+**The Problem:**
+Like the dashboard and profile pages earlier, the frontend components ([AdminDashboardPage](file:///d:/AG%20Projects/src/App.tsx#1961-2016), [AdminUsersPage](file:///d:/AG%20Projects/src/App.tsx#2017-2073), [AdminResourcesPage](file:///d:/AG%20Projects/src/App.tsx#2077-2109), and [AdminReportsPage](file:///d:/AG%20Projects/src/App.tsx#2110-2147) in [src/App.tsx](file:///d:/AG%20Projects/src/App.tsx)) are currently displaying static arrays of mock data (e.g., hardcoded arrays of flagged items and reported users) instead of fetching real data from those secure backend admin endpoints.
+
+## Proposed Changes
+
+We will wire up the 4 Admin pages in [src/App.tsx](file:///d:/AG%20Projects/src/App.tsx) to communicate with the secure backend API. 
+
+### [MODIFY] [src/App.tsx](file:///d:/AG%20Projects/src/App.tsx)
+- **[AdminDashboardPage](file:///d:/AG%20Projects/src/App.tsx#1961-2016)**: Replace the hardcoded metrics with a `useEffect` call to `/api/admin/dashboard` to get real platform-wide counts.
+- **[AdminUsersPage](file:///d:/AG%20Projects/src/App.tsx#2017-2073)**: Replace the `students` mock data array with a fetch from `/api/admin/users`, and wire the "Block/Unblock" buttons to `PUT /api/admin/users/:id/block`.
+- **[AdminResourcesPage](file:///d:/AG%20Projects/src/App.tsx#2077-2109)**: Fetch flagged listings from `/api/admin/resources` and connect the "Remove Listing" button to the `DELETE` route.
+- **[AdminReportsPage](file:///d:/AG%20Projects/src/App.tsx#2110-2147)**: Fetch platform reports from `/api/admin/reports` and connect the "Mark Resolved" / "Investigating" buttons to `PUT /api/admin/reports/:id`.
+
+## Verification Plan
+1. Send a request to sign in as the root Admin account (configured in the DB dummy data as `admin@university.edu`, password `admin123`).
+2. Verify the Admin Dashboard renders 0 reported users and 0 items dynamically.
+3. Try blocking a user and ensure the status immediately updates in the UI.

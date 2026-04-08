@@ -1,0 +1,38 @@
+# Execution Log: Phase 2 - Admin Moderation System
+
+## 1. Executive Summary
+The goal of this phase was to activate the Admin Control Panel pages. While the backend middleware security and endpoints were previously built, the front-facing React components (`AdminDashboardPage`, `AdminUsersPage`, `AdminResourcesPage`, `AdminReportsPage`) were dead UI mocked with dummy arrays. This execution wired absolutely every button, status tag, and table directly to the SQLite database.
+
+## 2. Technical Implementation Details
+
+### Backend Status (Pre-existing validation)
+- **File:** `server/routes/admin.js` & `server/middleware/auth.js`
+- **Logic:** We confirmed that the `adminMiddleware` interceptor checks `req.user.role !== 'admin'` and securely blocks non-admin JWTs.
+- **Available Extrapolated Endpoints:** `GET /dashboard`, `GET /users`, `PUT /users/:id/block`, `GET /resources`, `DELETE /resources/:id`, `GET /reports`, `PUT /reports/:id`.
+
+### Frontend Alterations
+- **File:** `src/App.tsx` (Complete Controller Swap replacing all arrays)
+
+- **Component 1: `AdminDashboardPage`**
+  - **Action:** Stripped hardcoded `const stats = [...]` UI variables mapping 1,847 mock users.
+  - **Logic:** Mounted `useEffect` fetching cleanly from `GET /api/admin/dashboard`. Hardwired `totalUsers`, `activeLoans`, `totalGroups`, and `pendingReports` integers natively to the `<StatCard />` UI mapping loops. Included percentage bars in the `Platform Stats` sub-section as well.
+
+- **Component 2: `AdminUsersPage`**
+  - **Action:** Activated the `Manage Users` data-table.
+  - **Logic:** Mounted `useEffect` fetching from `GET /api/admin/users`. Swapped table generation map `users.map(u)` entirely.
+  - **Handlers:** Built an asynchronous `toggleBlock` method pointing toward `PUT /api/admin/users/${id}/block`. Destructured the `.then()` response to trigger a localized setState to instantly update the React UI `status` badge (Green 'Active' to Red 'Blocked').
+
+- **Component 3: `AdminResourcesPage`**
+  - **Action:** Linked the flagged resource moderation feed logic.
+  - **Logic:** Mounted `useEffect` retrieving flagged aggregates from `GET /api/admin/resources`. 
+  - **Handlers:** Replaced the dummy `removeItem` frontend visual filter with a true network call sending `DELETE /api/admin/resources/${id}`, successfully excising the targeted resource from the live SQLite database.
+
+- **Component 4: `AdminReportsPage`**
+  - **Action:** Linked the resolution workflow arrays for reported violations.
+  - **Logic:** Mounted `useEffect` parsing `GET /api/admin/reports`.
+  - **Handlers:** Bound the "Start Investigation", "Mark Resolved", and "Escalate" action buttons to an asynchronous `updateStatus` hook executing `PUT /api/admin/reports/${id}` with their respective database-strict state strings.
+
+## 3. Verification & Testing
+- Performed rigorous manual testing by logging out and signing in natively as `admin@university.edu`.
+- Verified the Admin Dashboard successfully aggregated multi-table metrics without crashing the UI loops.
+- Checked User Blocking capabilities, definitively verifying frontend queries transmit their payloads to SQLite in real-time.

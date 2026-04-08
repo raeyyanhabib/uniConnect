@@ -1,0 +1,44 @@
+# Implementation Plan: Phase 3, 4, 5 (The Core Features)
+
+## Goal Description
+The user has authorized the simultaneous planning to fully eradicate all remaining mock data across the application. Furthermore, the user explicitly requested absolute pristine code formatting: strict indentation, blank line spacing for visual clarity, and highly descriptive block-comments preceding every logical chunk of code.
+
+**Discovery Status:**
+The backend logic is already built and secure:
+- `GET/POST/PUT /api/partners/...` serves UC 7–9.
+- `GET/POST/DELETE /api/groups/...` serves UC 10–14.
+- `GET/POST /api/resources/...` serves the marketplace.
+- `GET/POST /api/lostfound/...` serves the item registry.
+
+## Proposed Changes (Frontend File: [src/App.tsx](file:///d:/AG%20Projects/src/App.tsx))
+
+### Phase 3: Activating "Study Partners & Groups"
+- **`<StudyPartnersPage>`:** 
+  - Swap the `students` array with `useEffect` fetching from `GET /api/partners/search`.
+  - Wire "Send Request" to `POST /api/partners/requests`.
+  - Wire "Accept/Decline" to `PUT /api/partners/requests/:id`.
+  - Inject descriptive block comments for UI rendering logic.
+- **`<StudyGroupsPage>`:**
+  - Build `fetchGroups()` mapped to `GET /api/groups/discover` & `mine`.
+  - Map "Join Group" to `POST /api/groups/:id/join`.
+  - Map Group creation UI to `POST /api/groups`.
+
+### Phase 4: The Resource Marketplace
+- **`<ResourcesPage>`:** Replace textbook dummy arrays with `GET /api/resources`. Wire the "List New Item" creation form to a `POST` network call. Connect the "Borrow" interaction to secure ledger transactions.
+
+### Phase 5: Lost & Found Registry
+- **`<LostFoundPage>`:** Strip static wallet definitions. Bind tickets exclusively to the SQLite tables via API fetch, enabling reporting mutations.
+
+## Formatting Rules Enforced
+For every replacement chunk made inside [App.tsx](file:///d:/AG%20Projects/src/App.tsx), we will inject explicit block headers like:
+```tsx
+// ============================================================================
+// NETWORK HOOKS: Fetching Live Study Partners from SQLite
+// ============================================================================
+```
+...and ensure blank lines rigidly isolate operations.
+
+## Verification Plan
+1. Send a request to sign in.
+2. Verify all mock arrays are absent.
+3. Successfully create a test group and dispatch a partner request through the UI that reaches the backend DB successfully.
