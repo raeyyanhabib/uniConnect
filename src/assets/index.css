@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: 'Inter', sans-serif; background: #0F172A; color: #F8FAFC; margin: 0; }
+#root { height: 100%; }
+::selection { background: rgba(59,130,246,0.3); color: #fff; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+input, textarea, select, button { font-family: 'Inter', sans-serif; }
+
+.pageAnim { animation: pgIn 0.25s ease-out forwards; }
+@keyframes pgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.fadeIn { animation: fdIn 0.3s ease forwards; }
+@keyframes fdIn { from { opacity: 0; } to { opacity: 1; } }
+
+.pulse { animation: plsAnim 2s infinite; }
+@keyframes plsAnim {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+  70%  { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+
+.spin { animation: spnAnim 0.8s linear infinite; }
+@keyframes spnAnim { to { transform: rotate(360deg); } }
+
+.cardHover { transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; }
+.cardHover:hover { background: #1E293B !important; transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15) !important; }
+
+.sideNavItem { transition: all 0.2s ease; border-radius: 12px !important; margin-bottom: 2px; }
+.sideNavItem:hover { background: rgba(255,255,255,0.04); }
+.sideNavActive { background: rgba(59,130,246,0.12) !important; color: #60A5FA !important; }
+.tabBtn { transition: all 0.2s ease; }
+.tabActive { border-bottom: 2px solid #3B82F6; color: #3B82F6 !important; }
+
+.msgBubbleMine { background: #3B82F6; border-radius: 16px 16px 4px 16px; box-shadow: 0 4px 12px rgba(59,130,246,0.2); }
+.msgBubbleOther { background: #1E293B; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px 16px 16px 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.chip { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:24px; font-size:11px; font-weight:600; letter-spacing: 0.3px; }
+
+.overlay { position:fixed; inset:0; background:rgba(15,23,42,0.8); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:center; justify-content:center; animation: fdIn 0.2s ease; }
+.modal { background:#1E293B; border:1px solid rgba(255,255,255,0.08); border-radius:20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); max-width:520px; width:90%; max-height:85vh; overflow-y:auto; }
+.authCard { background:#1E293B; border:1px solid rgba(255,255,255,0.08); border-radius:24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+.starFilled { color: #F59E0B; }
+.starEmpty  { color: rgba(255,255,255,0.2); }

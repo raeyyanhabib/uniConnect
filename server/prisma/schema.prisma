@@ -1,0 +1,268 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  student
+  admin
+}
+
+enum PartnerStatus {
+  pending
+  accepted
+  declined
+}
+
+enum GroupVisibility {
+  public
+  private
+}
+
+enum GroupMemberRole {
+  member
+  moderator
+  creator
+}
+
+enum ResourceCategory {
+  book
+  equipment
+  notes
+  other
+}
+
+enum ResourceStatus {
+  available
+  borrowed
+  paused
+}
+
+enum TransactionStatus {
+  pending_approval
+  approved
+  rejected
+  owner_confirmed_handover
+  borrower_confirmed_receipt
+  return_initiated
+  owner_confirmed_return
+  completed
+  disputed
+}
+
+enum LostItemStatus {
+  lost
+  found
+  resolved
+}
+
+enum ReportStatus {
+  open
+  resolved
+}
+
+enum ReportTargetType {
+  resource
+  user
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  passwordHash       String
+  displayName        String
+  department         String?
+  semester           String?
+  bio                String?
+  role               Role      @default(student)
+  isVerified         Boolean   @default(false)
+  verificationToken  String?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  privacyHideMetrics Boolean   @default(false)
+  privacyHideProfile Boolean   @default(false)
+  rating             Float     @default(0)
+  createdAt          DateTime  @default(now())
+
+  sentRequests         PartnerRequest[]    @relation("SentRequests")
+  receivedRequests     PartnerRequest[]    @relation("ReceivedRequests")
+  createdGroups        StudyGroup[]
+  groupMemberships     GroupMember[]
+  groupAnnouncements   GroupAnnouncement[]
+  ownedResources       Resource[]
+  ownerTransactions    Transaction[]       @relation("OwnerTransactions")
+  borrowerTransactions Transaction[]       @relation("BorrowerTransactions")
+  sentMessages         Message[]
+  notifications        Notification[]
+  lostFoundReports     LostAndFound[]
+  filedReports         Report[]
+  postedNews           News[]
+  todos                UserTodo[]
+  events               UserEvent[]
+  conversations1       Conversation[]      @relation("User1Conversations")
+  conversations2       Conversation[]      @relation("User2Conversations")
+}
+
+model PartnerRequest {
+  id        String        @id @default(cuid())
+  fromId    String
+  toId      String
+  status    PartnerStatus @default(pending)
+  createdAt DateTime      @default(now())
+  from      User          @relation("SentRequests", fields: [fromId], references: [id])
+  to        User          @relation("ReceivedRequests", fields: [toId], references: [id])
+}
+
+model StudyGroup {
+  id            String          @id @default(cuid())
+  name          String
+  description   String?
+  courseCode    String
+  capacity      Int
+  visibility    GroupVisibility @default(public)
+  creatorId     String
+  createdAt     DateTime        @default(now())
+  creator       User            @relation(fields: [creatorId], references: [id])
+  members       GroupMember[]
+  announcements GroupAnnouncement[]
+}
+
+model GroupMember {
+  id       String          @id @default(cuid())
+  groupId  String
+  userId   String
+  role     GroupMemberRole @default(member)
+  joinedAt DateTime        @default(now())
+  group    StudyGroup      @relation(fields: [groupId], references: [id])
+  user     User            @relation(fields: [userId], references: [id])
+}
+
+model GroupAnnouncement {
+  id        String     @id @default(cuid())
+  groupId   String
+  authorId  String
+  content   String
+  createdAt DateTime   @default(now())
+  group     StudyGroup @relation(fields: [groupId], references: [id])
+  author    User       @relation(fields: [authorId], references: [id])
+}
+
+model Resource {
+  id          String           @id @default(cuid())
+  ownerId     String
+  title       String
+  description String?
+  category    ResourceCategory
+  status      ResourceStatus   @default(available)
+  reportCount Int              @default(0)
+  isFlagged   Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  owner       User             @relation(fields: [ownerId], references: [id])
+  transactions Transaction[]
+  reports      Report[]
+}
+
+model Transaction {
+  id           String            @id @default(cuid())
+  resourceId   String
+  ownerId      String
+  borrowerId   String
+  status       TransactionStatus @default(pending_approval)
+  handoverDate DateTime?
+  returnDate   DateTime?
+  damageReport String?
+  createdAt    DateTime          @default(now())
+  resource     Resource          @relation(fields: [resourceId], references: [id])
+  owner        User              @relation("OwnerTransactions", fields: [ownerId], references: [id])
+  borrower     User              @relation("BorrowerTransactions", fields: [borrowerId], references: [id])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  user1Id       String
+  user2Id       String
+  lastMessageAt DateTime  @default(now())
+  user1         User      @relation("User1Conversations", fields: [user1Id], references: [id])
+  user2         User      @relation("User2Conversations", fields: [user2Id], references: [id])
+  messages      Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation(fields: [senderId], references: [id])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  message     String
+  isRead      Boolean  @default(false)
+  referenceId String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model LostAndFound {
+  id          String         @id @default(cuid())
+  reporterId  String
+  itemName    String
+  description String?
+  location    String?
+  status      LostItemStatus @default(lost)
+  createdAt   DateTime       @default(now())
+  reporter    User           @relation(fields: [reporterId], references: [id])
+}
+
+model Report {
+  id         String           @id @default(cuid())
+  reporterId String
+  targetId   String
+  targetType ReportTargetType
+  reason     String
+  status     ReportStatus     @default(open)
+  createdAt  DateTime         @default(now())
+  reporter   User             @relation(fields: [reporterId], references: [id])
+  resource   Resource?        @relation(fields: [targetId], references: [id])
+}
+
+model News {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  authorId  String
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model UserTodo {
+  id        String   @id @default(cuid())
+  userId    String
+  task      String
+  isDone    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  eventDate   DateTime
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
